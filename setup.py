@@ -1,16 +1,17 @@
 from distutils.core import setup
 setup(
   name = 'youtube-search-requests',         
-  packages = ['youtube-search-requests'],   
-  version = '0.0.1',   
+  packages = ['youtube_search_requests'],   
+  version = '0.0.1',
   license='MIT',     
   description = 'Search Youtube videos using python requests',
+  long_description= 'This project still need documentation !!!',
   author = 'Rahman Yusuf',              
   author_email = 'danipart4@gmail.com',
   url = 'https://github.com/trollfist20/youtube-search-requests',  
   download_url = 'https://github.com/trollfist20/youtube-search-requests/archive/v0.0.1.tar.gz',
-  keywords = ['youtube', 'youtube-search'],   # Keywords that define your package best
-  install_requires=[            # I get to this in a second
+  keywords = ['youtube', 'youtube-search'], 
+  install_requires=[           
           'requests',
       ],
   classifiers=[

@@ -115,6 +115,7 @@ class YoutubeSearch:
                     else:
                         legit_urls.append(self._extract_info(url))
                     if len(legit_urls) == self.max_results:
+                        event_shutdown.set()
                         return legit_urls
 
     def _search(self, timeout=None):

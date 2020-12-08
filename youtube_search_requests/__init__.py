@@ -1,5 +1,5 @@
 """
-youtube-search-requests v0.0.1
+youtube-search-requests v0.0.11
 
 Search Videos in youtube using requests.
 youtube-search-requests only extract urls.

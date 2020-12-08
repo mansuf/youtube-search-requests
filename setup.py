@@ -11,7 +11,6 @@ setup(
   license='MIT',     
   description = 'Search Youtube videos using python requests',
   long_description= README,
-  long_description_content_type = 'text/markdown',
   author = 'Rahman Yusuf',              
   author_email = 'danipart4@gmail.com',
   url = 'https://github.com/trollfist20/youtube-search-requests',  

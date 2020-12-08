@@ -1,5 +1,5 @@
 """
-youtube-search-requests v0.0.11
+youtube-search-requests v0.0.14
 
 Search Videos in youtube using requests.
 youtube-search-requests only extract urls.
@@ -8,6 +8,7 @@ To process another information in urls you need to install youtube-dl.
 import sys
 import requests
 import threading
+import urllib
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 
 try:
@@ -25,12 +26,12 @@ class YoutubeSearch:
             a string terms want to search
         max_results: :class:`int`
             maximum search results
-        validate: :class:`bool`
+        validate: :class:`bool` (optional, default: True)
             validate url results, validating urls takes too much times but it worth to prevent UNPLAYABLE or ERROR videos
-        timeout: :class:`int` or :class:`NoneType`
-            Need documentation !!!
-        extract_info: :class:`bool`
-            Need documentation !!!
+        timeout: :class:`int` or :class:`NoneType` (optional, default: None)
+            give number of times to execute search, if times runs out, search stopped & returning results
+        extract_info: :class:`bool` (optional, default: False)
+            Extract additional info in urls, NOTE: you need to install youtube-dl module to extract additional info (pip install youtube-dl)
         """
 
         self.search_query = search_query
@@ -67,10 +68,21 @@ class YoutubeSearch:
         return True if valid,
         return False if not valid
         """
+        if 'https://www.youtube.com/watch?v=' in url:
+            pass
+        elif 'https://youtu.be/' in url:
+            pass
+        else:
+            raise Exception('invalid url')
         r = requests.get(url).text
+        # if video is Unavailable returning False
         if r.find('{"status":"ERROR","reason"') != -1:
             return False
+        # if video is unlisted or private returning False
         elif r.find('{"status":"UNPLAYABLE","reason"') != -1:
+            return False
+        # if video is live stream but offline returning False
+        elif r.find('LIVE_STREAM_OFFLINE') != -1:
             return False
         else:
             return True
@@ -89,9 +101,9 @@ class YoutubeSearch:
                     info = y.extract_info(url, download=False, process=False)
                     return {'title': info['title'], 'url': url, 'author': info['uploader'], 'thumbnails': info['thumbnails']}
                 except youtube_dl.utils.DownloadError:
-                    return url
+                    return {'title': None, 'url': url, 'author': None, 'thumbnails': None}
             else:
-                return url
+                raise Exception('youtube-dl module not found, please install it')
         else:
             return url
 
@@ -99,10 +111,11 @@ class YoutubeSearch:
     def _run_search(self, legit_urls=[], event_shutdown=threading.Event()):
         while True:
             for header in self.headers:
+                print(len(legit_urls))
                 # Force return results if True
                 if event_shutdown.is_set():
                     return legit_urls
-                r = requests.get(self.BASE_URL + self.search_query.replace(' ', '+'), headers=header)
+                r = requests.get(self.BASE_URL + urllib.parse.quote(self.search_query.replace(' ', '+')), headers=header)
                 urls = self._parse_urls(r)
                 for url in urls:
                     if url in legit_urls:
@@ -114,7 +127,7 @@ class YoutubeSearch:
                             continue
                     else:
                         legit_urls.append(self._extract_info(url))
-                    if len(legit_urls) == self.max_results:
+                    if len(legit_urls) == self.max_results or len(legit_urls) > self.max_results:
                         event_shutdown.set()
                         return legit_urls
 

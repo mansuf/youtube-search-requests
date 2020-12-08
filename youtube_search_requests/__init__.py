@@ -11,13 +11,13 @@ import threading
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 
 try:
-    from youtube_dl import YoutubeDL
+    import youtube_dl
     import_youtube_dl = True
 except ImportError:
     import_youtube_dl = False
 
 class YoutubeSearch:
-    def __init__(self, search_query: str, max_results=10, validate=True, timeout=None, extract_info=True):
+    def __init__(self, search_query: str, max_results=10, validate=True, timeout=None, extract_info=False):
         """
         YoutubeSearch arguments
 
@@ -84,9 +84,12 @@ class YoutubeSearch:
         """
         if self.extract:
             if import_youtube_dl:
-                y = YoutubeDL(params={'quiet': True, 'no_warnings': True})
-                info = y.extract_info(url, download=False, process=False)
-                return {'title': info['title'], 'url': url, 'author': info['uploader'], 'thumbnails': info['thumbnails']}
+                try:
+                    y = youtube_dl.YoutubeDL(params={'quiet': True, 'no_warnings': True})
+                    info = y.extract_info(url, download=False, process=False)
+                    return {'title': info['title'], 'url': url, 'author': info['uploader'], 'thumbnails': info['thumbnails']}
+                except youtube_dl.utils.DownloadError:
+                    return url
             else:
                 return url
 

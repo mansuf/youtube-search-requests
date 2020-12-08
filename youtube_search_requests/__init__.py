@@ -92,6 +92,8 @@ class YoutubeSearch:
                     return url
             else:
                 return url
+        else:
+            return url
 
 
     def _run_search(self, legit_urls=[], event_shutdown=threading.Event()):

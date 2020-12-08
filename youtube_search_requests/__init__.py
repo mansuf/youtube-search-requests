@@ -1,5 +1,5 @@
 """
-youtube-search-requests v0.0.14
+youtube-search-requests v0.0.14.5
 
 Search Videos in youtube using requests.
 youtube-search-requests only extract urls.
@@ -111,7 +111,6 @@ class YoutubeSearch:
     def _run_search(self, legit_urls=[], event_shutdown=threading.Event()):
         while True:
             for header in self.headers:
-                print(len(legit_urls))
                 # Force return results if True
                 if event_shutdown.is_set():
                     return legit_urls

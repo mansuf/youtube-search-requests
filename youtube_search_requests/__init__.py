@@ -1,5 +1,5 @@
 """
-youtube-search-requests v0.0.15
+youtube-search-requests
 
 Search youtube videos using requests without Youtube API.
 youtube-search-requests only extract urls.
@@ -12,6 +12,8 @@ import urllib
 import json
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 from youtube_search_requests.utils import *
+
+__VERSION__ = 'v0.0.15'
 
 try:
     import youtube_dl
@@ -115,6 +117,14 @@ class YoutubeSearch:
         else:
             return True
 
+    def _extract_thumbnail(self, info: dict):
+        try:
+            return info['thumbnails']
+        except KeyError:
+            return info['thumbnail']
+        else:
+            return None
+
     def _extract_info(self, url: str):
         """
         if module youtube-dl is imported.
@@ -127,7 +137,7 @@ class YoutubeSearch:
                 try:
                     y = youtube_dl.YoutubeDL(params={'quiet': True, 'no_warnings': True})
                     info = y.extract_info(url, download=False, process=False)
-                    return {'title': info['title'], 'url': url, 'author': info['uploader'], 'thumbnails': info['thumbnails']}
+                    return {'title': info['title'], 'url': url, 'author': info['uploader'], 'thumbnails': self._extract_thumbnail(info)}
                 except youtube_dl.utils.DownloadError:
                     return {'title': None, 'url': url, 'author': None, 'thumbnails': None}
             else:

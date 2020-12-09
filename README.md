@@ -76,7 +76,7 @@ from youtube_search_requests import YoutubeSearch
 
 # NOTE: this require youtube-dl module
 y = YoutubeSearch('fish', max_results=10, validate=True, extract_info=True)
-videos = y.search
+videos = y.search()
 
 print(videos)
 

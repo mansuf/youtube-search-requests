@@ -4,14 +4,16 @@ import sys
 from argparse import ArgumentParser
 from youtube_search_requests.utils import InvalidArgument
 from youtube_search_requests import YoutubeSearch
+from youtube_search_requests import __VERSION__
 
 def help_arguments():
     a = ArgumentParser(description='Search Youtube videos using python requests without Youtube API')
     a.add_argument('Search terms', metavar='Search terms', help='a string terms want to search (if include space, you must use double quotes "")')
-    a.add_argument('-v', '--validate', help='validate url results, validating urls takes too much times but it worth to prevent UNPLAYABLE or ERROR videos', metavar='')
+    a.add_argument('--validate', help='validate url results, validating urls takes too much times but it worth to prevent UNPLAYABLE or ERROR videos', metavar='')
     a.add_argument('--max-results={Number}', help='maximum search results', metavar='')
     a.add_argument('-t={Number}', '--timeout={Number}', help='give number of times to execute search, if times runs out, search stopped & returning results', metavar='')
     a.add_argument('-ei', '--extract-info', help='Extract additional info in urls, NOTE: you need to install youtube-dl module to extract additional info (pip install youtube-dl)', metavar='')
+    a.add_argument('-v', '--version', help='show youtube-search-requests version', metavar='')
     a.add_argument('--json', help='Return results in json format', metavar='')
     print(a.print_help())
 
@@ -23,7 +25,7 @@ def main(argv):
     search_terms = ''
     json_format = False
     for i in argv:
-        if i == '--validate' or i == '-v':
+        if i == '--validate':
             validate = True
         elif i.startswith('--max-results='):
             try:
@@ -39,6 +41,8 @@ def main(argv):
             extract_info = True
         elif i == '--json':
             json_format = True
+        elif i == '--version' or i == '-v':
+            return print(__VERSION__)
         else:
             search_terms = i
     if search_terms == '':

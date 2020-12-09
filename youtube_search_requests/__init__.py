@@ -13,7 +13,7 @@ import json
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.15'
+__VERSION__ = 'v0.0.15.5'
 
 try:
     import youtube_dl

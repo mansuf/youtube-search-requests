@@ -1,7 +1,7 @@
 """
-youtube-search-requests v0.0.14.5
+youtube-search-requests v0.0.15
 
-Search Videos in youtube using requests.
+Search youtube videos using requests without Youtube API.
 youtube-search-requests only extract urls.
 To process another information in urls you need to install youtube-dl.
 """
@@ -9,7 +9,9 @@ import sys
 import requests
 import threading
 import urllib
+import json
 from youtube_search_requests.constants import USER_AGENT_HEADERS
+from youtube_search_requests.utils import *
 
 try:
     import youtube_dl
@@ -18,7 +20,15 @@ except ImportError:
     import_youtube_dl = False
 
 class YoutubeSearch:
-    def __init__(self, search_query: str, max_results=10, validate=True, timeout=None, extract_info=False):
+    def __init__(
+        self,
+        search_query: str,
+        max_results=10,
+        validate=True,
+        timeout=None,
+        extract_info=False,
+        json_results=False
+    ):
         """
         YoutubeSearch arguments
 
@@ -32,7 +42,24 @@ class YoutubeSearch:
             give number of times to execute search, if times runs out, search stopped & returning results
         extract_info: :class:`bool` (optional, default: False)
             Extract additional info in urls, NOTE: you need to install youtube-dl module to extract additional info (pip install youtube-dl)
+        json_results: :class:`bool` (optional, default: False)
+            if True, Return results in json format. If False return results in dict format
         """
+
+        # Validate the arguments
+        if not isinstance(search_query, str):
+            raise InvalidArgument('search_query expecting str, got %s' % (search_query.__class__.__name__))
+        if not isinstance(max_results, int):
+            raise InvalidArgument('max_results expecting int, got %s' % (max_results.__class__.__name__))
+        if not isinstance(validate, bool):
+            raise InvalidArgument('validate expecting bool, got %s' % (validate.__class__.__name__))
+        if timeout is not None:
+            if not isinstance(timeout, int):
+                raise InvalidArgument('timeout expecting int or NoneType, got %s' % (timeout.__class__.__name__))
+        if not isinstance(extract_info, bool):
+            raise InvalidArgument('extract_info expecting bool, got %s' % (extract_info.__class__.__name__))
+        if not isinstance(json_results, bool):
+            raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results
@@ -40,6 +67,7 @@ class YoutubeSearch:
         self.validate = validate
         self.timeout = timeout
         self.extract = extract_info
+        self.json_results = json_results
 
         # Each headers give different results
         # this give advantages to query more results
@@ -73,7 +101,7 @@ class YoutubeSearch:
         elif 'https://youtu.be/' in url:
             pass
         else:
-            raise Exception('invalid url')
+            raise InvalidURL('invalid url')
         r = requests.get(url).text
         # if video is Unavailable returning False
         if r.find('{"status":"ERROR","reason"') != -1:
@@ -103,10 +131,15 @@ class YoutubeSearch:
                 except youtube_dl.utils.DownloadError:
                     return {'title': None, 'url': url, 'author': None, 'thumbnails': None}
             else:
-                raise Exception('youtube-dl module not found, please install it')
+                raise ModuleNotFoundError('youtube-dl module not found, please install it')
         else:
             return url
 
+    def _wrap_json(self, urls):
+        if self.json_results:
+            return json.dumps({'urls': urls})
+        else:
+            return urls
 
     def _run_search(self, legit_urls=[], event_shutdown=threading.Event()):
         while True:
@@ -143,7 +176,7 @@ class YoutubeSearch:
             return legit_urls
 
     def search(self):
-        return self._search(self.timeout)
+        return self._wrap_json(self._search(self.timeout))
                 
                 
 

@@ -22,7 +22,8 @@ setup(
       ],
   classifiers=[
     'Development Status :: 4 - Beta',  
-    'Intended Audience :: Console',
+    'Intended Audience :: Developers',
+    'Topic :: Software Development :: Build Tools',
     'License :: OSI Approved :: MIT License',  
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',

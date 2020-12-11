@@ -14,6 +14,7 @@ def help_arguments():
     a.add_argument('-t={Number}', '--timeout={Number}', help='give number of times to execute search, if times runs out, search stopped & returning results', metavar='')
     a.add_argument('-ei', '--extract-info', help='Extract additional info in urls, NOTE: you need to install youtube-dl module to extract additional info (pip install youtube-dl)', metavar='')
     a.add_argument('-v', '--version', help='show youtube-search-requests version', metavar='')
+    a.add_argument('--include-related-videos', help='include all related videos each url\'s', metavar='')
     a.add_argument('--json', help='Return results in json format', metavar='')
     print(a.print_help())
 
@@ -24,6 +25,7 @@ def main(argv):
     extract_info = False
     search_terms = ''
     json_format = False
+    include_related_videos = False
     for i in argv:
         if i == '--validate':
             validate = True
@@ -43,11 +45,13 @@ def main(argv):
             json_format = True
         elif i == '--version' or i == '-v':
             return print(__VERSION__)
+        elif i == '--include-related-videos':
+            include_related_videos = True
         else:
             search_terms = i
     if search_terms == '':
         raise InvalidArgument('search_terms is empty')
-    yt_search = YoutubeSearch(search_terms, max_results, validate, timeout, extract_info, json_format)
+    yt_search = YoutubeSearch(search_terms, max_results, validate, timeout, extract_info, json_format, include_related_videos)
     print(yt_search.search())
         
 

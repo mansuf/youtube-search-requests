@@ -7,7 +7,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
   name = 'youtube-search-requests',         
-  packages = ['youtube_search_requests'],   
+  packages = ['youtube_search_requests', 'youtube_search_requests/utils'],   
   version = __VERSION__,
   license='MIT',     
   description = 'Search Youtube videos using python requests without Youtube API',

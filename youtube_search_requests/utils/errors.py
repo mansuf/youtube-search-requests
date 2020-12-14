@@ -1,5 +1,5 @@
 # youtube-search-requests 
-# utils.py
+# errors.py
 
 # raised when one of each argument is invalid
 class InvalidArgument(Exception):

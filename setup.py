@@ -22,7 +22,7 @@ setup(
           'requests',
       ],
   classifiers=[
-    'Development Status :: 5 - Stable',  
+    'Development Status :: 5 - Production/Stable',  
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Build Tools',
     'License :: OSI Approved :: MIT License',  

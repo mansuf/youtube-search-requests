@@ -13,7 +13,7 @@ from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.2'
+__VERSION__ = 'v0.0.20'
 
 class YoutubeSearch:
     def __init__(

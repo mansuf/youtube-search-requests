@@ -20,22 +20,17 @@ class YoutubeSession:
     def parse_session_data(self, data):
         self.data = data
         self.key = data['INNERTUBE_API_KEY']
-        try:
-            self.client = data['INNERTUBE_CONTEXT']
-        except KeyError as e:
-            print(data)
-            raise e
+        self.client = data['INNERTUBE_CONTEXT']
         self.id = data['INNERTUBE_CONTEXT']['request']['sessionId']
 
     def new_session(self):
-        self.USER_AGENT = random.choice(USER_AGENT_HEADERS)
-        data = self.get_session_data(self.USER_AGENT)
-        self.parse_session_data(data)
+        while True:
+            self.USER_AGENT = random.choice(USER_AGENT_HEADERS)
+            data = self.get_session_data(self.USER_AGENT)
+            try:
+                self.parse_session_data(data)
+                break
+            except KeyError:
+                continue
 
-    def request_search(self, search_query: str):
-        json_data = {'context': {}}
-        for i in self.client.keys():
-            json_data['context'][i] = self.client[i]
-        json_data['query'] = search_query
-        r = requests.post(self.BASE_SEARCH_URL + self.key, json=json_data, headers={'User-Agent': self.USER_AGENT})
-        return r
+

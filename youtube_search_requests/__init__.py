@@ -13,7 +13,7 @@ from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.20'
+__VERSION__ = 'v0.0.21'
 
 class YoutubeSearch:
     def __init__(
@@ -22,6 +22,7 @@ class YoutubeSearch:
         max_results=10,
         timeout=None,
         json_results=False,
+        include_related_videos=False
     ):
         """
         YoutubeSearch arguments
@@ -34,6 +35,8 @@ class YoutubeSearch:
             give number of times to execute search, if times runs out, search stopped & returning results
         json_results: :class:`bool` (optional, default: False)
             if True, Return results in json format. If False return results in dict format
+        include_related_videos: :class:`bool` (optional, default: False)
+            include all related videos each url's
         """
 
         # Validate the arguments
@@ -46,12 +49,15 @@ class YoutubeSearch:
                 raise InvalidArgument('timeout expecting int or NoneType, got %s' % (timeout.__class__.__name__))
         if not isinstance(json_results, bool):
             raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
+        if not isinstance(include_related_videos, bool):
+            raise InvalidArgument('include_related_videos expecting bool, got %s' % (include_related_videos.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results
         self.BASE_SEARCH_URL = 'https://www.youtube.com/youtubei/v1/search?key='
         self.timeout = timeout
         self.json_results = json_results
+        self.include_related_videos = include_related_videos
         self.session = YoutubeSession()
         # wait event shutdown worker
         self._wait_event = None
@@ -83,7 +89,7 @@ class YoutubeSearch:
                 self.session.new_session()
                 r = self.request_search(self.search_query)
                 continue
-            videos = GetVideosData(r).get_videos()
+            videos = GetVideosData(r, self.include_related_videos).get_videos()
             if videos is None:
                 self.session.new_session()
                 r = self.request_search(self.search_query)
@@ -93,6 +99,7 @@ class YoutubeSearch:
                     continue
                 legit_urls.append(i)
                 if len(legit_urls) > self.max_results or len(legit_urls) == self.max_results:
+                    event_shutdown.set()
                     return legit_urls
             else:
                 r = self.request_search(self.search_query, continuation=continuation)

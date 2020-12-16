@@ -24,6 +24,7 @@ def main(argv):
     json_format = False
     json_output = False
     filename_json_output = ''
+    include_related_videos = False
     for i in argv:
         if i.startswith('--max-results='):
             try:
@@ -42,15 +43,18 @@ def main(argv):
             filename_json_output = i.replace('--json-output=', '')
         elif i == '--version' or i == '-v':
             return print(__VERSION__)
+        elif i == '--include-related-videos':
+            include_related_videos = True
         else:
             search_terms = i
     if search_terms == '':
         raise InvalidArgument('search_terms is empty')
-    yt_search = YoutubeSearch(search_terms, max_results, timeout, json_format)
+    yt_search = YoutubeSearch(search_terms, max_results, timeout, json_format, include_related_videos)
     result_search = yt_search.search()
     if json_output:
+        yt_search.json_results = True
         w = open(filename_json_output, 'w')
-        w.write(result_search)
+        w.write(yt_search._wrap_json(result_search))
         w.close()
     else:
         print(result_search)

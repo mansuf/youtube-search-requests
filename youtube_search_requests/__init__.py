@@ -8,12 +8,11 @@ import requests
 import threading
 import urllib
 import json
-from youtube_search_requests.constants import USER_AGENT_HEADERS
 from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.21'
+__VERSION__ = 'v0.0.21.5'
 
 class YoutubeSearch:
     def __init__(

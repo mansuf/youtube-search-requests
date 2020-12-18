@@ -12,7 +12,7 @@ from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.22'
+__VERSION__ = 'v0.0.22.5'
 
 class YoutubeSearch:
     """

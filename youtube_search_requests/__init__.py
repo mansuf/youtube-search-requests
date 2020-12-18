@@ -12,32 +12,37 @@ from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.21.5'
+__VERSION__ = 'v0.0.22'
 
 class YoutubeSearch:
+    """
+    YoutubeSearch arguments
+
+    search_query: :class:`str`
+        a string terms want to search
+    max_results: :class:`int` (optional, default: 10)
+        maximum search results
+    timeout: :class:`int` or :class:`NoneType` (optional, default: None)
+        give number of times to execute search, if times runs out, search stopped & returning results
+    json_results: :class:`bool` (optional, default: False)
+        if True, Return results in json format. If False return results in dict format
+    include_related_videos: :class:`bool` (optional, default: False)
+        include all related videos each url's
+    preferred_user_agent: :class:`str` (optional, default: 'BOT')
+        Need documentation !!!
+    youtube_session: :class:`YoutubeSession` (optional, default: None)
+        Need documentation !!!
+    """
     def __init__(
         self,
         search_query: str,
         max_results=10,
         timeout=None,
         json_results=False,
-        include_related_videos=False
+        include_related_videos=False,
+        preferred_user_agent='BOT',
+        youtube_session=None
     ):
-        """
-        YoutubeSearch arguments
-
-        search_query: :class:`str`
-            a string terms want to search
-        max_results: :class:`int` (optional, default: 10)
-            maximum search results
-        timeout: :class:`int` or :class:`NoneType` (optional, default: None)
-            give number of times to execute search, if times runs out, search stopped & returning results
-        json_results: :class:`bool` (optional, default: False)
-            if True, Return results in json format. If False return results in dict format
-        include_related_videos: :class:`bool` (optional, default: False)
-            include all related videos each url's
-        """
-
         # Validate the arguments
         if not isinstance(search_query, str):
             raise InvalidArgument('search_query expecting str, got %s' % (search_query.__class__.__name__))
@@ -50,6 +55,10 @@ class YoutubeSearch:
             raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
         if not isinstance(include_related_videos, bool):
             raise InvalidArgument('include_related_videos expecting bool, got %s' % (include_related_videos.__class__.__name__))
+        if not isinstance(preferred_user_agent, str):
+            raise InvalidArgument('preferred_user_agent expecting str, got %s' % (include_related_videos.__class__.__name__))
+        if not isinstance(youtube_session, YoutubeSession):
+            raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results
@@ -57,7 +66,7 @@ class YoutubeSearch:
         self.timeout = timeout
         self.json_results = json_results
         self.include_related_videos = include_related_videos
-        self.session = YoutubeSession()
+        self.session = youtube_session or YoutubeSession(preferred_user_agent=preferred_user_agent)
         # wait event shutdown worker
         self._wait_event = None
 

@@ -17,6 +17,10 @@ class SearchRelatedVideos:
         else:
             raise InvalidURL('invalid url')
         self.url = url
+        self._LIST_VIDEO_RENDERER_DATA_TYPE = [
+            'compactVideoRenderer',
+            'videoRenderer'
+        ]
 
     def _wrap_dict_related_videos(self, data: str):
         startpos = data.find('var ytInitialData = ')
@@ -24,28 +28,62 @@ class SearchRelatedVideos:
         endpos = text2.find('"}};</script>') + 3
         return json.loads(text2[:endpos])
 
+    def _get_info(self, data: dict, info: str):
+        try:
+            d = data[info]
+        except KeyError:
+            return None
+        try:
+            a = d['runs']
+            for i in a:
+                try:
+                    return i['text']
+                except KeyError:
+                    continue
+        except KeyError:
+            pass
+        try:
+            return d['simpleText']
+        except KeyError:
+            pass
+        raise Exception()
+
+    def _get_url(self, data):
+        return 'https://www.youtube.com/watch?v=%s' % (data['videoId'])
+    
+    def _get_thumbnails(self, data):
+        return data['thumbnail']['thumbnails']
+
     def _request_search(self, url: str):
         r = requests.get(url)
         return r.text
 
     def _get_related_videos(self, data: dict):
-        vids = data['contents']['twoColumnWatchNextResults']['secondaryResults']['secondaryResults']['results']
+        d = data['contents']['twoColumnWatchNextResults']['secondaryResults']['secondaryResults']['results']
         videos = []
-        for info in vids:
+        v = None
+        for info in d:
+            for i in self._LIST_VIDEO_RENDERER_DATA_TYPE:
+                try:
+                    v = info[i]
+                except KeyError:
+                    continue
+            if v is None:
+                continue
             try:
-                v = info['compactVideoRenderer']
                 videos.append({
-                    'title': v['title']['runs'][0]['text'],
-                    'url': 'https://www.youtube.com/watch?v=%s' % (v['videoId']),
-                    'thumbnails': v['thumbnail']['thumbnails'],
-                    'uploader': v['longBylineText']['runs'][0]['text'],
-                    'publishedSince': v['publishedTimeText']['runs'][0]['text'],
-                    'views': v['viewCountText']['runs'][0]['text'],
-                    'durations': v['lengthText']['runs'][0]['text']
+                    'title': self._get_info(v, 'title'),
+                    'url': self._get_url(v),
+                    'thumbnails': self._get_thumbnails(v),
+                    'uploader': self._get_info(v, 'longBylineText'),
+                    'publishedSince': self._get_info(v, 'publishedTimeText'),
+                    'views': self._get_info(v, 'viewCountText'),
+                    'durations': self._get_info(v, 'lengthText')
                 })
             except KeyError:
                 continue
         return videos
+
 
     def get_related_videos(self):
         data = self._request_search(self.url)
@@ -58,58 +96,69 @@ class SearchRelatedVideos:
         except KeyError:
             return None
 
-
-
 class GetVideosData:
-    def __init__(self, dict_data: dict, include_related_videos=False):
+    def __init__(self, dict_data: dict, include_related_videos=False, use_short_link=False):
         self.data = dict_data
         self.include_related_videos = include_related_videos
+        self.use_short_link = use_short_link
+        self._LIST_VIDEO_RENDERER_DATA_TYPE = [
+            'compactVideoRenderer',
+            'videoRenderer'
+        ]
+        self._PARSE_METHODS = [
+            self._parse_method1,
+            self._parse_method2,
+            self._parse_method3
+        ]
 
-    def _get_primary_videos_data(self, data):
+    def _parse_method1(self, data):
         try:
-            return data['contents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
+            init = data['onResponseReceivedCommands']
         except KeyError:
             return None
-        except IndexError:
+        for a in init:
+            try:
+                d = a['appendContinuationItemsAction']['continuationItems']
+            except KeyError:
+                continue
+        if d is None:
             return None
+        for i in d:
+            try:
+                return i['itemSectionRenderer']['contents']
+            except KeyError:
+                continue
+        return None
 
-    def _get_primary_videos_data_post(self, data):
+    def _parse_method2(self, data):
         try:
-            return data['onResponseReceivedCommands'][0]['appendContinuationItemsAction']['continuationItems'][0]['itemSectionRenderer']['contents']
+            d = data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents']
         except KeyError:
             return None
-        except IndexError:
-            return None
+        for i in d:
+            try:
+                return i['itemSectionRenderer']['contents']
+            except KeyError:
+                continue
+        return None
 
-    def _get_secondary_videos_data(self, data):
+    def _parse_method3(self, data):
         try:
-            return data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
+            d = data['contents']['sectionListRenderer']['contents']
         except KeyError:
             return None
-        except IndexError:
-            return None
-
-    def _get_third_videos_data(self, data):
-        try:
-            return data['contents']['sectionListRenderer']['contents'][1]['itemSectionRenderer']['contents']
-        except KeyError:
-            return None
-        except IndexError:
-            return None
+        for i in d:
+            try:
+                return i['itemSectionRenderer']['contents']
+            except KeyError:
+                continue
+        return None
 
     def _get_videos(self):
-        p1 = self._get_primary_videos_data(self.data)
-        if p1 is not None:
-            return p1
-        p2 = self._get_primary_videos_data_post(self.data)
-        if p2 is not None:
-            return p2
-        s1 = self._get_secondary_videos_data(self.data)
-        if s1 is not None:
-            return s1
-        t1 = self._get_third_videos_data(self.data)
-        if t1 is not None:
-            return t1
+        for i in self._PARSE_METHODS:
+            t1 = i(self.data)
+            if t1 is not None:
+                return t1
         return None
 
     def get_related_videos(self, url: str):
@@ -119,22 +168,58 @@ class GetVideosData:
         else:
             return None
 
+    def _get_info(self, data: dict, info: str):
+        try:
+            d = data[info]
+        except KeyError:
+            return None
+        try:
+            a = d['runs']
+            for i in a:
+                try:
+                    return i['text']
+                except KeyError:
+                    continue
+        except KeyError:
+            pass
+        try:
+            return d['simpleText']
+        except KeyError:
+            pass
+        return None
+
+    def _get_url(self, data):
+        if self.use_short_link:
+            return 'https://youtu.be/%s' % (data['videoId'])
+        else:
+            return 'https://www.youtube.com/watch?v=%s' % (data['videoId'])
+    
+    def _get_thumbnails(self, data):
+        return data['thumbnail']['thumbnails']
+
     def get_videos(self):
         videos = []
         data = self._get_videos()
         if data is None:
             return None
+        v = None
         for info in data:
+            for i in self._LIST_VIDEO_RENDERER_DATA_TYPE:
+                try:
+                    v = info[i]
+                except KeyError:
+                    continue
+            if v is None:
+                continue
             try:
-                v = info['compactVideoRenderer']
                 videos.append({
-                    'title': v['title']['runs'][0]['text'],
-                    'url': 'https://www.youtube.com/watch?v=%s' % (v['videoId']),
-                    'thumbnails': v['thumbnail']['thumbnails'],
-                    'uploader': v['longBylineText']['runs'][0]['text'],
-                    'publishedSince': v['publishedTimeText']['runs'][0]['text'],
-                    'views': v['viewCountText']['runs'][0]['text'],
-                    'durations': v['lengthText']['runs'][0]['text'],
+                    'title': self._get_info(v, 'title'),
+                    'url': self._get_url(v),
+                    'thumbnails': self._get_thumbnails(v),
+                    'uploader': self._get_info(v, 'longBylineText'),
+                    'publishedSince': self._get_info(v, 'publishedTimeText'),
+                    'views': self._get_info(v, 'viewCountText'),
+                    'durations': self._get_info(v, 'lengthText'),
                     'related_videos': self.get_related_videos('https://www.youtube.com/watch?v=%s' % (v['videoId']))
                 })
             except KeyError:
@@ -145,51 +230,59 @@ class GetVideosData:
 class GetContinuationToken:
     def __init__(self, dict_data: dict):
         self.data = dict_data
+        self._PARSE_METHODS = [
+            self._parse_method1,
+            self._parse_method2,
+            self._parse_method3
+        ]
 
-    def _get_primary_continuation_token(self, data):
+    def _parse_method1(self, data):
         try:
-            return data['contents']['sectionListRenderer']['contents'][1]['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            init = data['onResponseReceivedCommands']
         except KeyError:
             return None
-        except IndexError:
+        d = None
+        for a in init:
+            try:
+                d = a['appendContinuationItemsAction']['continuationItems']
+            except KeyError:
+                continue
+        if d is None:
             return None
+        for i in d:
+            try:
+                return i['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            except KeyError:
+                continue
+        return None
 
-    def _get_secondary_continuation_token(self, data):
+    def _parse_method2(self, data):
         try:
-            return data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][1]['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            d = data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents']
         except KeyError:
             return None
-        except IndexError:
-            return None
+        for i in d:
+            try:
+                return i['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            except KeyError:
+                continue
+        return None
 
-    def _get_primary_continuation_token_post(self, data):
+    def _parse_method3(self, data):
         try:
-            return data['onResponseReceivedCommands'][0]['appendContinuationItemsAction']['continuationItems'][1]['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            d = data['contents']['sectionListRenderer']['contents']
         except KeyError:
             return None
-        except IndexError:
-            return None
-
-    def _get_third_continuation_token(self, data):
-        try:
-            return data['contents']['sectionListRenderer']['contents'][2]['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
-        except KeyError:
-            return None
-        except IndexError:
-            return None
-
+        for i in d:
+            try:
+                return i['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token']
+            except KeyError:
+                continue
+        return None
 
     def get_token(self):
-        p1 = self._get_primary_continuation_token(self.data)
-        if p1 is not None:
-            return p1
-        p2 = self._get_primary_continuation_token_post(self.data)
-        if p2 is not None:
-            return p2
-        s1 = self._get_secondary_continuation_token(self.data)
-        if s1 is not None:
-            return s1
-        t1 = self._get_third_continuation_token(self.data)
-        if t1 is not None:
-            return t1
+        for i in self._PARSE_METHODS:
+            t1 = i(self.data)
+            if t1 is not None:
+                return t1
         return None

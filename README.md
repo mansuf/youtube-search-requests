@@ -14,7 +14,7 @@ youtube-search-requests now extract info by itself.
 And provide a very fast search rather than old version (v0.0.1)
 
 CLI (Command Line Interface) Usage:
-```python
+```
 
 usage: python3 -m youtube_search_requests [-h] [-v] [--max-results={Number}] [-t={Number}] [-ei]
                                           [--json]
@@ -34,6 +34,10 @@ optional arguments:
                         give number of times to execute search, if times runs
                         out, search stopped & returning results
   --json                Return results in json format
+  --json-output={Filename} 
+                        Return results in output file based on json format
+  --include-related-videos 
+                        include all related videos each url's
 
 example usage:
 

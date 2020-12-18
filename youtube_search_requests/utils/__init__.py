@@ -46,7 +46,7 @@ class SearchRelatedVideos:
             return d['simpleText']
         except KeyError:
             pass
-        raise Exception()
+        return None
 
     def _get_url(self, data):
         return 'https://www.youtube.com/watch?v=%s' % (data['videoId'])

@@ -57,8 +57,9 @@ class YoutubeSearch:
             raise InvalidArgument('include_related_videos expecting bool, got %s' % (include_related_videos.__class__.__name__))
         if not isinstance(preferred_user_agent, str):
             raise InvalidArgument('preferred_user_agent expecting str, got %s' % (include_related_videos.__class__.__name__))
-        if not isinstance(youtube_session, YoutubeSession):
-            raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
+        if youtube_session is not None:
+            if not isinstance(youtube_session, YoutubeSession):
+                raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results

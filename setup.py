@@ -1,6 +1,7 @@
 import pathlib
 from setuptools import setup
-from youtube_search_requests import __VERSION__
+
+__VERSION__ = 'v0.0.23'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()

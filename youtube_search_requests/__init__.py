@@ -3,8 +3,6 @@ youtube-search-requests
 
 Search youtube videos using requests without Youtube API.
 """
-import sys
-import requests
 import threading
 import urllib
 import json
@@ -12,7 +10,7 @@ from youtube_search_requests.utils.errors import *
 from youtube_search_requests.session import YoutubeSession
 from youtube_search_requests.utils import *
 
-__VERSION__ = 'v0.0.22.5'
+__VERSION__ = 'v0.0.23'
 
 class YoutubeSearch:
     """
@@ -28,10 +26,9 @@ class YoutubeSearch:
         if True, Return results in json format. If False return results in dict format
     include_related_videos: :class:`bool` (optional, default: False)
         include all related videos each url's
-    preferred_user_agent: :class:`str` (optional, default: 'BOT')
-        Need documentation !!!
     youtube_session: :class:`YoutubeSession` (optional, default: None)
-        Need documentation !!!
+        a session for youtube.
+        NOTE: YoutubeSearch require YoutubeSession in order to work !
     """
     def __init__(
         self,
@@ -40,7 +37,6 @@ class YoutubeSearch:
         timeout=None,
         json_results=False,
         include_related_videos=False,
-        preferred_user_agent='BOT',
         youtube_session=None
     ):
         # Validate the arguments
@@ -55,8 +51,6 @@ class YoutubeSearch:
             raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
         if not isinstance(include_related_videos, bool):
             raise InvalidArgument('include_related_videos expecting bool, got %s' % (include_related_videos.__class__.__name__))
-        if not isinstance(preferred_user_agent, str):
-            raise InvalidArgument('preferred_user_agent expecting str, got %s' % (include_related_videos.__class__.__name__))
         if youtube_session is not None:
             if not isinstance(youtube_session, YoutubeSession):
                 raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
@@ -67,7 +61,7 @@ class YoutubeSearch:
         self.timeout = timeout
         self.json_results = json_results
         self.include_related_videos = include_related_videos
-        self.session = youtube_session or YoutubeSession(preferred_user_agent=preferred_user_agent)
+        self.session = youtube_session or YoutubeSession(preferred_user_agent='BOT')
         # wait event shutdown worker
         self._wait_event = None
 
@@ -84,7 +78,7 @@ class YoutubeSearch:
         json_data['query'] = search_terms
         if continuation is not None:
             json_data['continuation'] = continuation
-        r = requests.post(self.BASE_SEARCH_URL + self.session.key, json=json_data, headers={'User-Agent': self.session.USER_AGENT})
+        r = self.session.post(self.BASE_SEARCH_URL + self.session.key, json=json_data, headers={'User-Agent': self.session.USER_AGENT})
         return json.loads(r.text)
 
     def main(self, legit_urls: list, event_shutdown: threading.Event):

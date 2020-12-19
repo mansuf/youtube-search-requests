@@ -1,12 +1,21 @@
-import requests
 import json
 import random
+from requests import Session
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 from youtube_search_requests.utils import parse_json_session_data
 from youtube_search_requests.utils.errors import InvalidArgument
 
-class YoutubeSession:
+class YoutubeSession(Session):
+    """
+    YoutubeSession arguments
+
+    preferred_user_agent: :class:`str` (optional, default: 'BOT')
+        a User-Agent header to pass in session, 
+        see constants.py to see all supported user-agents
+
+    """
     def __init__(self, preferred_user_agent='BOT'):
+        super().__init__()
         self.BASE_URL = 'https://www.youtube.com/'
         self.BASE_SEARCH_URL = 'https://www.youtube.com/youtubei/v1/search?key='
         self.check_valid_user_agent(preferred_user_agent)
@@ -24,9 +33,9 @@ class YoutubeSession:
 
     def get_session_data(self, user_agent_header=None):
         if user_agent_header is None:
-            r = requests.get(self.BASE_URL)
+            r = self.get(self.BASE_URL)
         else:
-            r = requests.get(self.BASE_URL, headers={'User-Agent': user_agent_header})
+            r = self.get(self.BASE_URL, headers={'User-Agent': user_agent_header})
         return parse_json_session_data(r)
 
     def parse_session_data(self, data):
@@ -37,6 +46,7 @@ class YoutubeSession:
 
     def new_session(self):
         while True:
+            super().__init__()
             self.USER_AGENT = self.get_user_agent(self.preferred_user_agent)
             data = self.get_session_data(self.USER_AGENT)
             try:

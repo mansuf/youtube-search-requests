@@ -1,7 +1,7 @@
 import pathlib
 from setuptools import setup
 
-__VERSION__ = 'v0.0.24.1'
+__VERSION__ = 'v0.0.24.2'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -21,6 +21,7 @@ setup(
   keywords = ['youtube', 'youtube-search'], 
   install_requires=[           
           'requests',
+          'aiohttp'
       ],
   classifiers=[
     'Development Status :: 5 - Production/Stable',  

@@ -1,7 +1,7 @@
 import pathlib
 from setuptools import setup
 
-__VERSION__ = 'v0.0.24'
+__VERSION__ = 'v0.0.24.1'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()

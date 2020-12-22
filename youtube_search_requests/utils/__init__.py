@@ -8,6 +8,10 @@ def parse_json_session_data(r: requests.Request):
     d = r.text[r.text.find('ytcfg.set({') + 10:]
     return json.loads(d[0:d.find(');')])
 
+async def parse_json_async_session_data(s: str):
+    d = s[s.find('ytcfg.set({') + 10:]
+    return json.loads(d[0:d.find(');')])
+
 class SearchRelatedVideos:
     def __init__(self, url: str):
         if 'https://www.youtube.com/watch?v=' in url:

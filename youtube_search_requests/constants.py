@@ -307,6 +307,8 @@ ANDROID_OPERA_USER_AGENTS = [
     'Mozilla/5.0 (Linux; Android 7.0; SM-A310F Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.91 Mobile Safari/537.36 OPR/42.7.2246.114996'
 ]
 
+# Each user-agents give different results
+# this give advantages to query more results
 USER_AGENT_HEADERS = {
     'LINUX_FIREFOX': LINUX_FIREFOX_USER_AGENTS,
     'LINUX_CHROME': LINUX_CHROME_USER_AGENTS,
@@ -317,18 +319,3 @@ USER_AGENT_HEADERS = {
     'ANDROID_CHROME': ANDROID_CHROME_USER_AGENTS,
     'ANDROID_OPERA': ANDROID_OPERA_USER_AGENTS,
 }
-
-# TODO: FINISH THIS !!!
-# # Each user-agents give different results
-# # this give advantages to query more results
-# UWU_USER_AGENT_HEADERS = [
-#     'Mozilla/5.0 (Android 10; Mobile; rv:79.0) Gecko/79.0 Firefox/79.0',
-#     'Mozilla/5.0 (Linux; Android 7.0; SM-A310F Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.91 Mobile Safari/537.36 OPR/42.7.2246.114996',
-#     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4230.1 Safari/537.36',
-#     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.11 (KHTML, like Gecko) Ubuntu/14.04.6 Chrome/81.0.3990.0 Safari/537.36',
-#     # Android Samsung Browser headers
-
-#     # Android Opera headers
-#     'Mozilla/5.0 (Linux; Android 7.0; SM-A310F Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.91 Mobile Safari/537.36 OPR/42.7.2246.114996',
-#     'Mozilla/5.0 (Linux; U; Android 5.0.2; zh-CN; Redmi Note 3 Build/LRX22G) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 OPR/11.2.3.102637 Mobile Safari/537.36',
-# ]

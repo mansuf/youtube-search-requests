@@ -10,8 +10,6 @@ pool:
   vmImage: 'ubuntu-latest'
 strategy:
   matrix:
-    Python34:
-      python.version: '3.4'
     Python35:
       python.version: '3.5'
     Python36:
@@ -35,4 +33,4 @@ steps:
 
 - script: |
     python test.py
-  displayName: 'py unittest youtube-search-requests'
+  displayName: 'final test'

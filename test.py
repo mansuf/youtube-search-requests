@@ -44,43 +44,100 @@ class TestYoutubeSearch(unittest.TestCase):
             youtube = YoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, youtube_session=session, include_related_videos=True)
             youtube.search()
 
-class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
+# For python3.8 upper
+try:
+    unittest.IsolatedAsyncioTestCase('test')
+    class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
+        async def test_with_given_time(self):
+            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
+            data = await y.search()
+            await y.session.close()
+            self.assertEqual(len(data), 10)
+            self.assertIsInstance(data, list)
+        
+        async def test_normal(self):
+            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
+            data = await y.search()
+            await y.session.close()
+            self.assertIsInstance(data, list)
 
-    async def test_with_given_time(self):
-        y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
-        data = await y.search()
-        await y.session.close()
-        self.assertEqual(len(data), 10)
-        self.assertIsInstance(data, list)
-    
-    async def test_normal(self):
-        y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
-        data = await y.search()
-        await y.session.close()
-        self.assertIsInstance(data, list)
+        async def test_with_included_related_videos(self):
+            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
+            data = await y.search()
+            await y.session.close()
+            self.assertIsInstance(data, list)
 
-    async def test_with_included_related_videos(self):
-        y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
-        data = await y.search()
-        await y.session.close()
-        self.assertIsInstance(data, list)
+        async def test_all_user_agents(self):
+            for ua in USER_AGENT_HEADERS.keys():
+                session = AsyncYoutubeSession(ua)
+                await session.new_session()
+                youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session)
+                await youtube.search()
+                await youtube.session.close()
 
-    async def test_all_user_agents(self):
-        for ua in USER_AGENT_HEADERS.keys():
-            session = AsyncYoutubeSession(ua)
-            await session.new_session()
-            youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session)
-            await youtube.search()
-            await youtube.session.close()
+        async def test_all_user_agents_with_related_videos(self):
+            for ua in USER_AGENT_HEADERS.keys():
+                session = AsyncYoutubeSession(ua)
+                await session.new_session()
+                youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session, include_related_videos=True)
+                await youtube.search()
+                await youtube.session.close()
+# For python 3.8 lower
+except AttributeError:
+    class TestAsyncYoutubeSearch(unittest.TestCase):
+        def test_with_given_time(self):
+            async def worker():
+                y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
+                data = await y.search()
+                await y.session.close()
+                return data
+            loop = asyncio.new_event_loop()
+            data = loop.run_until_complete(worker)
+            self.assertEqual(len(data), 10)
+            self.assertIsInstance(data, list)
+        
+        def test_normal(self):
+            async def worker():
+                y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
+                data = await y.search()
+                await y.session.close()
+                return data
+            loop = asyncio.new_event_loop()
+            data = loop.run_until_complete(worker)
+            self.assertIsInstance(data, list)
 
-    async def test_all_user_agents_with_related_videos(self):
-        for ua in USER_AGENT_HEADERS.keys():
-            session = AsyncYoutubeSession(ua)
-            await session.new_session()
-            youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session, include_related_videos=True)
-            await youtube.search()
-            await youtube.session.close()
+        def test_with_included_related_videos(self):
+            async def worker():
+                y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
+                data = await y.search()
+                await y.session.close()
+                return data
+            loop = asyncio.new_event_loop()
+            data = loop.run_until_complete(worker)
+            self.assertIsInstance(data, list)
 
+        def test_all_user_agents(self):
+            async def worker():
+                for ua in USER_AGENT_HEADERS.keys():
+                    session = AsyncYoutubeSession(ua)
+                    await session.new_session()
+                    youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session)
+                    await youtube.search()
+                    await youtube.session.close()
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(worker)
+            
+
+        def test_all_user_agents_with_related_videos(self):
+            async def worker():
+                for ua in USER_AGENT_HEADERS.keys():
+                    session = AsyncYoutubeSession(ua)
+                    await session.new_session()
+                    youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session, include_related_videos=True)
+                    await youtube.search()
+                    await youtube.session.close()
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(worker)
 
 if __name__ == "__main__":
     unittest.main()

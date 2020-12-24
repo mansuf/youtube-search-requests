@@ -86,7 +86,7 @@ try:
 except AttributeError:
     class TestAsyncYoutubeSearch(unittest.TestCase):
         def test_with_given_time(self):
-            async def worker()():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
                 data = await y.search()
                 await y.session.close()
@@ -97,7 +97,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
         
         def test_normal(self):
-            async def worker()():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
                 data = await y.search()
                 await y.session.close()
@@ -107,7 +107,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
 
         def test_with_included_related_videos(self):
-            async def worker()():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
                 data = await y.search()
                 await y.session.close()
@@ -117,7 +117,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
 
         def test_all_user_agents(self):
-            async def worker()():
+            async def worker():
                 for ua in USER_AGENT_HEADERS.keys():
                     session = AsyncYoutubeSession(ua)
                     await session.new_session()
@@ -129,7 +129,7 @@ except AttributeError:
             
 
         def test_all_user_agents_with_related_videos(self):
-            async def worker()():
+            async def worker():
                 for ua in USER_AGENT_HEADERS.keys():
                     session = AsyncYoutubeSession(ua)
                     await session.new_session()

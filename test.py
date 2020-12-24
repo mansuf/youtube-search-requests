@@ -3,7 +3,6 @@ from youtube_search_requests import YoutubeSearch, YoutubeSession, AsyncYoutubeS
 import sys
 import asyncio
 from youtube_search_requests.constants import USER_AGENT_HEADERS
-import aiounittest
 
 # For short results
 BASE_TIMEOUT = 10

@@ -29,11 +29,11 @@ class YoutubeSearch:
     def __init__(
         self,
         search_query: str,
-        max_results=10,
-        timeout=None,
-        json_results=False,
-        include_related_videos=False,
-        youtube_session=None
+        max_results: int=10,
+        timeout: int=None,
+        json_results: bool=False,
+        include_related_videos: bool=False,
+        youtube_session: YoutubeSession=None
     ):
         # Validate the arguments
         if not isinstance(search_query, str):

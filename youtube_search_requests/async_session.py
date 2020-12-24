@@ -22,6 +22,8 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
     preferred_user_agent: :class:`str` (optional, default: 'BOT')
         a User-Agent header to pass in session, 
         see constants.py to see all supported user-agents
+    loop: :class:`asyncio.AbstractEventLoop` (optional, default: None)
+        a event loop to pass in session
 
     """
     def __init__(self, preferred_user_agent='BOT', loop: asyncio.AbstractEventLoop=None):

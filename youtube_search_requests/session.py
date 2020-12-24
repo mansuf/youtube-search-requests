@@ -1,3 +1,6 @@
+# youtube-search-requests
+# session.py
+
 import json
 import random
 from requests import Session

@@ -11,7 +11,7 @@ if sys.version_info.major == 2:
     class JSONDecoderError(ValueError):
         pass
 else:
-    class JSONDecoderError(json.decoder.JSONDecoderError):
+    class JSONDecoderError(json.decoder.JSONDecodeError):
         pass
 
 def parse_json_session_data(r):

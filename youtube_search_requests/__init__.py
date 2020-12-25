@@ -7,7 +7,7 @@ import sys
 
 if sys.version_info.major == 2:
     from youtube_search_requests.python2.session import YoutubeSession
-    # from youtube_search_requests.python2.search import YoutubeSearch
+    from youtube_search_requests.python2.search import YoutubeSearch
 else:
     from youtube_search_requests.search import YoutubeSearch
     from youtube_search_requests.session import YoutubeSession

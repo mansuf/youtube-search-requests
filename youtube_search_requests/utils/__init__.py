@@ -1,19 +1,33 @@
 # youtube-search-requests 
 # utils.__init__.py
 import json
+import sys
 import requests
 from youtube_search_requests.utils.errors import InvalidURL
 
-def parse_json_session_data(r: requests.Request):
+if sys.version_info.major == 2:
+    # Error class for json.decoder
+    # Compatible with python 2
+    class JSONDecoderError(ValueError):
+        pass
+else:
+    class JSONDecoderError(json.decoder.JSONDecoderError):
+        pass
+
+def parse_json_session_data(r):
     d = r.text[r.text.find('ytcfg.set({') + 10:]
     return json.loads(d[0:d.find(');')])
 
-async def parse_json_async_session_data(s: str):
-    d = s[s.find('ytcfg.set({') + 10:]
-    return json.loads(d[0:d.find(');')])
+# Compatible with python 2
+if sys.version_info.major != 2:
+    import asyncio
+    @asyncio.coroutine
+    def parse_json_async_session_data(s):
+        d = s[s.find('ytcfg.set({') + 10:]
+        return json.loads(d[0:d.find(');')])
 
 class SearchRelatedVideos:
-    def __init__(self, url: str):
+    def __init__(self, url):
         if 'https://www.youtube.com/watch?v=' in url:
             pass
         elif 'https://youtu.be/' in url:
@@ -26,13 +40,13 @@ class SearchRelatedVideos:
             'videoRenderer'
         ]
 
-    def _wrap_dict_related_videos(self, data: str):
+    def _wrap_dict_related_videos(self, data):
         startpos = data.find('var ytInitialData = ')
         text2 = data[startpos+20:]
         endpos = text2.find('"}};</script>') + 3
         return json.loads(text2[:endpos])
 
-    def _get_info(self, data: dict, info: str):
+    def _get_info(self, data, info):
         try:
             d = data[info]
         except KeyError:
@@ -58,11 +72,11 @@ class SearchRelatedVideos:
     def _get_thumbnails(self, data):
         return data['thumbnail']['thumbnails']
 
-    def _request_search(self, url: str):
+    def _request_search(self, url):
         r = requests.get(url)
         return r.text
 
-    def _get_related_videos(self, data: dict):
+    def _get_related_videos(self, data):
         d = data['contents']['twoColumnWatchNextResults']['secondaryResults']['secondaryResults']['results']
         videos = []
         v = None
@@ -93,7 +107,7 @@ class SearchRelatedVideos:
         data = self._request_search(self.url)
         try:
             dict_data = self._wrap_dict_related_videos(data)
-        except json.decoder.JSONDecodeError:
+        except JSONDecoderError:
             return None
         try:
             return self._get_related_videos(dict_data)
@@ -101,7 +115,7 @@ class SearchRelatedVideos:
             return None
 
 class GetVideosData:
-    def __init__(self, dict_data: dict, include_related_videos=False, use_short_link=False):
+    def __init__(self, dict_data, include_related_videos=False, use_short_link=False):
         self.data = dict_data
         self.include_related_videos = include_related_videos
         self.use_short_link = use_short_link
@@ -165,14 +179,14 @@ class GetVideosData:
                 return t1
         return None
 
-    def get_related_videos(self, url: str):
+    def get_related_videos(self, url):
         if self.include_related_videos:
             s = SearchRelatedVideos(url)
             return s.get_related_videos()
         else:
             return None
 
-    def _get_info(self, data: dict, info: str):
+    def _get_info(self, data, info):
         try:
             d = data[info]
         except KeyError:
@@ -232,7 +246,7 @@ class GetVideosData:
 
 
 class GetContinuationToken:
-    def __init__(self, dict_data: dict):
+    def __init__(self, dict_data):
         self.data = dict_data
         self._PARSE_METHODS = [
             self._parse_method1,

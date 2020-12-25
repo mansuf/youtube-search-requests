@@ -1,11 +1,8 @@
 import unittest
+from youtube_search_requests import YoutubeSearch, YoutubeSession, AsyncYoutubeSearch, AsyncYoutubeSession
 import sys
+import asyncio
 from youtube_search_requests.constants import USER_AGENT_HEADERS
-
-if sys.version_info.major == 2:
-    from youtube_search_requests import YoutubeSearch, YoutubeSession
-else:
-    from youtube_search_requests import YoutubeSearch, YoutubeSession, AsyncYoutubeSearch, AsyncYoutubeSession
 
 # For short results
 BASE_TIMEOUT = 10
@@ -47,35 +44,30 @@ class TestYoutubeSearch(unittest.TestCase):
             youtube = YoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, youtube_session=session, include_related_videos=True)
             youtube.search()
 
-
+# For python3.8 upper
 try:
     unittest.IsolatedAsyncioTestCase('test')
-    import asyncio
     class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
-        @asyncio.coroutine
-        def test_with_given_time(self):
+        async def test_with_given_time(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
             data = await y.search()
             await y.session.close()
             self.assertEqual(len(data), 10)
             self.assertIsInstance(data, list)
-
-        @asyncio.coroutine
-        def test_normal(self):
+        
+        async def test_normal(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
             data = await y.search()
             await y.session.close()
             self.assertIsInstance(data, list)
 
-        @asyncio.coroutine
-        def test_with_included_related_videos(self):
+        async def test_with_included_related_videos(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
             data = await y.search()
             await y.session.close()
             self.assertIsInstance(data, list)
 
-        @asyncio.coroutine
-        def test_all_user_agents(self):
+        async def test_all_user_agents(self):
             for ua in USER_AGENT_HEADERS.keys():
                 session = AsyncYoutubeSession(ua)
                 await session.new_session()
@@ -83,8 +75,7 @@ try:
                 await youtube.search()
                 await youtube.session.close()
 
-        @asyncio.coroutine
-        def test_all_user_agents_with_related_videos(self):
+        async def test_all_user_agents_with_related_videos(self):
             for ua in USER_AGENT_HEADERS.keys():
                 session = AsyncYoutubeSession(ua)
                 await session.new_session()
@@ -95,8 +86,7 @@ try:
 except AttributeError:
     class TestAsyncYoutubeSearch(unittest.TestCase):
         def test_with_given_time(self):
-            @asyncio.coroutine
-            def worker():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
                 data = await y.search()
                 await y.session.close()
@@ -107,8 +97,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
         
         def test_normal(self):
-            @asyncio.coroutine
-            def worker():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
                 data = await y.search()
                 await y.session.close()
@@ -118,8 +107,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
 
         def test_with_included_related_videos(self):
-            @asyncio.coroutine
-            def worker():
+            async def worker():
                 y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
                 data = await y.search()
                 await y.session.close()
@@ -129,8 +117,7 @@ except AttributeError:
             self.assertIsInstance(data, list)
 
         def test_all_user_agents(self):
-            @asyncio.coroutine
-            def worker():
+            async def worker():
                 for ua in USER_AGENT_HEADERS.keys():
                     session = AsyncYoutubeSession(ua)
                     await session.new_session()
@@ -142,8 +129,7 @@ except AttributeError:
             
 
         def test_all_user_agents_with_related_videos(self):
-            @asyncio.coroutine
-            def worker():
+            async def worker():
                 for ua in USER_AGENT_HEADERS.keys():
                     session = AsyncYoutubeSession(ua)
                     await session.new_session()
@@ -154,30 +140,26 @@ except AttributeError:
             loop.run_until_complete(worker())
 except ValueError:
     class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
-        @asyncio.coroutine
-        def test_with_given_time(self):
+        async def test_with_given_time(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
             data = await y.search()
             await y.session.close()
             self.assertEqual(len(data), 10)
             self.assertIsInstance(data, list)
         
-        @asyncio.coroutine
-        def test_normal(self):
+        async def test_normal(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
             data = await y.search()
             await y.session.close()
             self.assertIsInstance(data, list)
 
-        @asyncio.coroutine
-        def test_with_included_related_videos(self):
+        async def test_with_included_related_videos(self):
             y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
             data = await y.search()
             await y.session.close()
             self.assertIsInstance(data, list)
 
-        @asyncio.coroutine
-        def test_all_user_agents(self):
+        async def test_all_user_agents(self):
             for ua in USER_AGENT_HEADERS.keys():
                 session = AsyncYoutubeSession(ua)
                 await session.new_session()
@@ -185,8 +167,7 @@ except ValueError:
                 await youtube.search()
                 await youtube.session.close()
 
-        @asyncio.coroutine
-        def test_all_user_agents_with_related_videos(self):
+        async def test_all_user_agents_with_related_videos(self):
             for ua in USER_AGENT_HEADERS.keys():
                 session = AsyncYoutubeSession(ua)
                 await session.new_session()

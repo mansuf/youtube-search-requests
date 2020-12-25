@@ -1,10 +1,15 @@
 import pathlib
 from setuptools import setup
+import sys
 
-__VERSION__ = 'v0.0.24.2'
+__VERSION__ = 'v0.0.25'
 
-HERE = pathlib.Path(__file__).parent
-README = (HERE / "README.md").read_text()
+if sys.version_info.major == 2:
+  HERE = pathlib.Path(__file__).parent
+  README = (HERE / "README.md").open('r').read()
+else:
+  HERE = pathlib.Path(__file__).parent
+  README = (HERE / "README.md").read_text()
 
 setup(
   name = 'youtube-search-requests',         

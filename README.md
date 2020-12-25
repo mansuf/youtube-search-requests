@@ -3,13 +3,11 @@
 ~~youtube-search-requests can search up to 120+ videos !~~
 ### youtube-search-requests v0.0.2 can search unlimited videos !!!
 
+youtube-search-requests support python 2 and python 3
 
 ~~Normally youtube-search-requests only extract urls, you can extract additional information by installing youtube-dl, for more information check usage below.~~.
 
-in v0.0.2, features like "validate", "extract_info", "include_related_videos" is gone,
-but dont worry "include_related_videos" will be back in future updates.
-
-also, you don't need youtube-dl module anymore, 
+you don't need youtube-dl module anymore, 
 youtube-search-requests now extract info by itself.
 And provide a very fast search rather than old version (v0.0.1)
 
@@ -73,6 +71,34 @@ y = YoutubeSearch('fish', max_results=10, timeout=60)
 videos = y.search()
 
 print(videos)
+```
+
+Include related videos usage:
+```python
+
+from youtube_search_requests import YoutubeSearch
+
+y = YoutubeSearch('fish', max_results=10, include_related_videos=True) 
+videos = y.search()
+
+print(videos)
+
+```
+
+### youtube-search-requests also support asynchronous method !
+
+async usage:
+```python
+
+import asyncio
+from youtube_search_requests import AsyncYoutubeSearch
+
+async def search():
+  y = AsyncYoutubeSearch('fish', max_results=10)
+  results = await y.search()
+  print(results)
+
+asyncio.run(search())
 ```
 
 ## You might be wonder, how youtube-search-requests work ?

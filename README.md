@@ -3,8 +3,6 @@
 ~~youtube-search-requests can search up to 120+ videos !~~
 ### youtube-search-requests v0.0.2 can search unlimited videos !!!
 
-youtube-search-requests support python 2 and python 3
-
 ~~Normally youtube-search-requests only extract urls, you can extract additional information by installing youtube-dl, for more information check usage below.~~.
 
 you don't need youtube-dl module anymore, 

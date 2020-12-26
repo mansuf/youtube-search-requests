@@ -5,26 +5,14 @@ import sys
 import requests
 from youtube_search_requests.utils.errors import InvalidURL
 
-if sys.version_info.major == 2:
-    # Error class for json.decoder
-    # Compatible with python 2
-    class JSONDecoderError(ValueError):
-        pass
-else:
-    class JSONDecoderError(json.decoder.JSONDecodeError):
-        pass
 
 def parse_json_session_data(r):
     d = r.text[r.text.find('ytcfg.set({') + 10:]
     return json.loads(d[0:d.find(');')])
 
-# Compatible with python 2
-if sys.version_info.major != 2:
-    import asyncio
-    @asyncio.coroutine
-    def parse_json_async_session_data(s):
-        d = s[s.find('ytcfg.set({') + 10:]
-        return json.loads(d[0:d.find(');')])
+async def parse_json_async_session_data(s):
+    d = s[s.find('ytcfg.set({') + 10:]
+    return json.loads(d[0:d.find(');')])
 
 class SearchRelatedVideos:
     def __init__(self, url):
@@ -107,7 +95,7 @@ class SearchRelatedVideos:
         data = self._request_search(self.url)
         try:
             dict_data = self._wrap_dict_related_videos(data)
-        except JSONDecoderError:
+        except json.decoder.JSONDecodeError:
             return None
         try:
             return self._get_related_videos(dict_data)

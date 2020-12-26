@@ -5,17 +5,9 @@ Search youtube videos using requests without Youtube API.
 """
 import sys
 
-if sys.version_info.major == 2:
-    from youtube_search_requests.python2 import (
-        YoutubeSession,
-        YoutubeSearch,
-        AsyncYoutubeSearch,
-        AsyncYoutubeSession
-    )
-else:
-    from youtube_search_requests.search import YoutubeSearch
-    from youtube_search_requests.session import YoutubeSession
-    from youtube_search_requests.async_session import AsyncYoutubeSession
-    from youtube_search_requests.async_search import AsyncYoutubeSearch
+from youtube_search_requests.search import YoutubeSearch
+from youtube_search_requests.session import YoutubeSession
+from youtube_search_requests.async_session import AsyncYoutubeSession
+from youtube_search_requests.async_search import AsyncYoutubeSearch
 
 __VERSION__ = 'v0.0.25'

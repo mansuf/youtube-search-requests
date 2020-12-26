@@ -73,7 +73,7 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
             super().__init__()
             self.USER_AGENT = self.get_user_agent(self.preferred_user_agent)
             try:
-                data = await self.get_session_data(self.USER_AGENT):
+                data = await self.get_session_data(self.USER_AGENT)
             except json.decoder.JSONDecodeError:
                 warnings.warn('unsupported user-agent: %s' % (self.USER_AGENT))
                 continue

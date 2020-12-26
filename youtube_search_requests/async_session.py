@@ -5,6 +5,8 @@ import threading
 import aiohttp
 import random
 import asyncio
+import json
+import warnings
 from youtube_search_requests.constants import USER_AGENT_HEADERS
 from youtube_search_requests.utils import parse_json_async_session_data
 from youtube_search_requests.utils.errors import InvalidArgument
@@ -70,7 +72,11 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
         while True:
             super().__init__()
             self.USER_AGENT = self.get_user_agent(self.preferred_user_agent)
-            data = await self.get_session_data(self.USER_AGENT)
+            try:
+                data = await self.get_session_data(self.USER_AGENT):
+            except json.decoder.JSONDecodeError:
+                warnings.warn('unsupported user-agent: %s' % (self.USER_AGENT))
+                continue
             try:
                 self._parse_session_data(data)
                 break

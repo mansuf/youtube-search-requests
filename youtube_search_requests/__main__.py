@@ -15,6 +15,7 @@ def help_arguments():
     a.add_argument('--json', help='Return results in json format', metavar='')
     a.add_argument('--json-output={Filename}', help='Return results in output file based on json format', metavar='')
     a.add_argument('--include-related-videos', help='include all related videos each url\'s', metavar='')
+    a.add_argument('--safe-search', help='This helps hide potentially mature videos.', metavar='')
     print(a.print_help())
 
 def main(argv):
@@ -25,6 +26,7 @@ def main(argv):
     json_output = False
     filename_json_output = ''
     include_related_videos = False
+    safe_search = False
     for i in argv:
         if i.startswith('--max-results='):
             try:
@@ -45,11 +47,13 @@ def main(argv):
             return print(__VERSION__)
         elif i == '--include-related-videos':
             include_related_videos = True
+        elif i == '--safe-search':
+            safe_search = True
         else:
             search_terms = i
     if search_terms == '':
         raise InvalidArgument('search_terms is empty')
-    yt_search = YoutubeSearch(search_terms, max_results, timeout, json_format, include_related_videos)
+    yt_search = YoutubeSearch(search_terms, max_results, timeout, json_format, include_related_videos, safe_search=safe_search)
     result_search = yt_search.search()
     if json_output:
         yt_search.json_results = True
@@ -64,6 +68,9 @@ def main(argv):
 if __name__ == "__main__":
     try:
         main(sys.argv[1:])
+    except InvalidArgument as e:
+        print('ERROR: %s' % (e))
+        help_arguments()
     except Exception as e:
         print('ERROR: %s' % (e))
         help_arguments()

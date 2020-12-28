@@ -100,7 +100,7 @@ print(videos)
 
 ```
 
-### youtube-search-requests also support asynchronous method !
+### youtube-search-requests also support asynchronous method ! (using aiohttp module)
 
 search with async usage:
 ```python

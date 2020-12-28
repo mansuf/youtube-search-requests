@@ -108,7 +108,14 @@ class AsyncYoutubeSearch:
                 continue
 
     async def _search(self, timeout=None):
-        await self.session.new_session()
+        try:
+            self.session.key
+            self.session.data
+            self.session.client
+            self.session.id
+            self.session.USER_AGENT
+        except AttributeError:
+            await self.session.new_session()
         if timeout is None:
             legit_urls = []
             event_shutdown = asyncio.Event()

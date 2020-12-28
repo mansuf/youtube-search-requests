@@ -5,7 +5,10 @@ import threading
 import json
 from youtube_search_requests.utils.errors import InvalidArgument
 from youtube_search_requests.session import YoutubeSession
-from youtube_search_requests.utils import GetContinuationToken, GetVideosData
+from youtube_search_requests.utils import (
+    GetContinuationToken,
+    GetVideosData
+)
 from concurrent.futures import Future
 
 class YoutubeSearch:
@@ -33,7 +36,8 @@ class YoutubeSearch:
         timeout: int=None,
         json_results: bool=False,
         include_related_videos: bool=False,
-        youtube_session: YoutubeSession=None
+        youtube_session: YoutubeSession=None,
+        safe_search: bool=False
     ):
         # Validate the arguments
         if not isinstance(search_query, str):
@@ -50,6 +54,8 @@ class YoutubeSearch:
         if youtube_session is not None:
             if not isinstance(youtube_session, YoutubeSession):
                 raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
+        if not isinstance(safe_search, bool):
+            raise InvalidArgument('safe_search expecting bool, got %s' % (safe_search.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results
@@ -57,7 +63,7 @@ class YoutubeSearch:
         self.timeout = timeout
         self.json_results = json_results
         self.include_related_videos = include_related_videos
-        self.session = youtube_session or YoutubeSession(preferred_user_agent='BOT')
+        self.session = youtube_session or YoutubeSession(preferred_user_agent='BOT', restricted_mode=safe_search)
 
     def _wrap_json(self, urls: list):
         if self.json_results:

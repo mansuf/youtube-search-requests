@@ -32,6 +32,11 @@ class TestYoutubeSearch(unittest.TestCase):
         data = y.search()
         self.assertIsInstance(data, list)
 
+    def test_with_restricted_mode(self):
+        y = YoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, safe_search=True)
+        data = y.search()
+        self.assertIsInstance(data, list)
+
     def test_all_user_agents(self):
         for ua in USER_AGENT_HEADERS.keys():
             session = YoutubeSession(ua)
@@ -42,6 +47,12 @@ class TestYoutubeSearch(unittest.TestCase):
         for ua in USER_AGENT_HEADERS.keys():
             session = YoutubeSession(ua)
             youtube = YoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, youtube_session=session, include_related_videos=True)
+            youtube.search()
+
+    def test_all_user_agents_with_related_videos_and_restricted_mode(self):
+        for ua in USER_AGENT_HEADERS.keys():
+            session = YoutubeSession(ua)
+            youtube = YoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, youtube_session=session, include_related_videos=True, safe_search=True)
             youtube.search()
 
 # For python3.8 upper

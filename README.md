@@ -12,9 +12,10 @@ And provide a very fast search rather than old version (v0.0.1)
 CLI (Command Line Interface) Usage:
 ```
 
-usage: python3 -m youtube_search_requests [-h] [-v] [--max-results={Number}] [-t={Number}] [-ei]
-                                          [--json]
- 			                   Search terms
+usage: python3 -m youtube_search_requests [-h] [--max-results={Number}] [-t={Number}] [-v] [--json]
+                                          [--json-output={Filename}] [--include-related-videos]
+                                          [--safe-search]
+                                          Search terms
 
 Search Youtube videos using python requests without Youtube API
 
@@ -29,12 +30,13 @@ optional arguments:
   -t={Number} , --timeout={Number} 
                         give number of times to execute search, if times runs
                         out, search stopped & returning results
+  -v , --version        show youtube-search-requests version
   --json                Return results in json format
   --json-output={Filename} 
                         Return results in output file based on json format
   --include-related-videos 
                         include all related videos each url's
-
+  --safe-search         This helps hide potentially mature videos.
 example usage:
 
 python3 -m youtube_search_requests "fish" --json
@@ -71,7 +73,7 @@ videos = y.search()
 print(videos)
 ```
 
-Include related videos usage:
+Search with related videos usage:
 ```python
 
 from youtube_search_requests import YoutubeSearch
@@ -83,9 +85,24 @@ print(videos)
 
 ```
 
+### youtube-search-requests support safe search !!!
+### this helps to prevent mature videos in search results.
+
+search with safe search usage:
+```python
+
+from youtube_search_requests import YoutubeSearch
+
+y = YoutubeSearch('fish', max_results=10, safe_search=True) 
+videos = y.search()
+
+print(videos)
+
+```
+
 ### youtube-search-requests also support asynchronous method !
 
-async usage:
+search with async usage:
 ```python
 
 import asyncio

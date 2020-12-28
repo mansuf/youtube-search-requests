@@ -28,6 +28,9 @@ class YoutubeSearch:
     youtube_session: :class:`YoutubeSession` (optional, default: None)
         a session for youtube.
         NOTE: YoutubeSearch require YoutubeSession in order to work !
+    safe_search: :class:`bool` (optional, default: False)
+        This helps hide potentially mature videos.
+        No filter is 100% accurate.
     """
     def __init__(
         self,

@@ -48,7 +48,6 @@ class YoutubeSession(Session):
         return self._parse_preference_cookies()
 
     def get_session_data(self, user_agent_header=None):
-        print(self._parse_cookies())
         if user_agent_header is None:
             r = self.get(self.BASE_URL, cookies=self._parse_cookies())
         else:

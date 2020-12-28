@@ -18,18 +18,21 @@ class AsyncYoutubeSearch:
     AsyncYoutubeSearch arguments
 
     search_query: :class:`str`
-        a string terms want to search
+        a string terms want to search.
     max_results: :class:`int` (optional, default: 10)
-        maximum search results
+        maximum search results.
     timeout: :class:`int` or :class:`NoneType` (optional, default: None)
-        give number of times to execute search, if times runs out, search stopped & returning results
+        give number of times to execute search, if times runs out, search stopped & returning results.
     json_results: :class:`bool` (optional, default: False)
-        if True, Return results in json format. If False return results in dict format
+        if True, Return results in json format. If False return results in dict format.
     include_related_videos: :class:`bool` (optional, default: False)
-        include all related videos each url's
+        include all related videos each url's.
     async_youtube_session: :class:`AsyncYoutubeSession` (optional, default: None)
         a async session for youtube.
-        NOTE: AsyncYoutubeSearch require AsyncYoutubeSession in order to work !
+        NOTE: AsyncYoutubeSearch require AsyncYoutubeSession in order to work !.
+    safe_search: :class:`bool` (optional, default: False)
+        This helps hide potentially mature videos.
+        No filter is 100% accurate.
     """
     def __init__(
         self,
@@ -38,7 +41,8 @@ class AsyncYoutubeSearch:
         timeout: int=None,
         json_results: bool=False,
         include_related_videos: bool=False,
-        async_youtube_session: AsyncYoutubeSession=None
+        async_youtube_session: AsyncYoutubeSession=None,
+        safe_search: bool=False
     ):
         # Validate the arguments
         if not isinstance(search_query, str):
@@ -55,6 +59,8 @@ class AsyncYoutubeSearch:
         if async_youtube_session is not None:
             if not isinstance(async_youtube_session, AsyncYoutubeSession):
                 raise InvalidArgument('async_youtube_session expecting AsyncYoutubeSession, got %s' % (async_youtube_session.__class__.__name__))
+        if not isinstance(safe_search, bool):
+            raise InvalidArgument('safe_search expecting bool, got %s' % (safe_search.__class__.__name__))
 
         self.search_query = search_query
         self.max_results = max_results
@@ -62,7 +68,7 @@ class AsyncYoutubeSearch:
         self.timeout = timeout
         self.json_results = json_results
         self.include_related_videos = include_related_videos
-        self.session = async_youtube_session or AsyncYoutubeSession(preferred_user_agent='BOT')
+        self.session = async_youtube_session or AsyncYoutubeSession(preferred_user_agent='BOT', restricted_mode=safe_search)
 
     def _wrap_json(self, urls: list):
         if self.json_results:
@@ -89,7 +95,7 @@ class AsyncYoutubeSearch:
             continuation = GetContinuationToken(r).get_token()
             if continuation is None:
                 await self.session.new_session()
-                r = self.request_search(self.search_query)
+                r = await self.request_search(self.search_query)
                 continue
             videos = GetVideosData(r, self.include_related_videos).get_videos()
             if videos is None:
@@ -121,39 +127,20 @@ class AsyncYoutubeSearch:
             event_shutdown = asyncio.Event()
             return await self.main(legit_urls, event_shutdown)
         else:
-            # For some reason, this thing require multi-threading.
             legit_urls = []
             event_shutdown = threading.Event()
-            f = Future()
-
-            def internal_worker(self, f: Future, legit_urls: list, event_shutdown: threading.Event):
-                f.set_running_or_notify_cancel()
-                async def async_worker(self, legit_urls, event_shutdown):
-                    preferred_user_agent = self.session.preferred_user_agent
-                    new_session = AsyncYoutubeSession(preferred_user_agent)
-                    # Copying all old var class into new var class
-                    new_session.key = self.session.key
-                    new_session.data = self.session.data
-                    new_session.client = self.session.client
-                    new_session.id = self.session.id
-                    new_session.USER_AGENT = self.session.USER_AGENT
-                    self.session = new_session
-                    return await self.main(legit_urls, event_shutdown)
+            future = asyncio.ensure_future(self.main(legit_urls, event_shutdown))
+            t = int(timeout.__repr__())
+            exception = None
+            while t > 0:
                 try:
-                    # future = asyncio.run_coroutine_threadsafe(async_worker(self, legit_urls, event_shutdown), loop)
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    result = loop.run_until_complete(async_worker(self, legit_urls, event_shutdown))
-                    f.set_result(result)
-                except Exception as e:
-                    f.set_exception(e)
-
-            worker = threading.Thread(target=internal_worker, name='worker_youtube_search_requests', args=(self, f, legit_urls, event_shutdown), daemon=True)
-            worker.start()
-            event_shutdown.wait(timeout)
-            event_shutdown.set()
-            exception = f.exception()
-            if exception:
+                    exception = future.exception()
+                    break
+                except asyncio.InvalidStateError:
+                    await asyncio.sleep(1)
+                    t -= 1
+                    continue
+            if exception is not None:
                 raise exception
             return legit_urls
 

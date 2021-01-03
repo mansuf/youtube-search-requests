@@ -1,3 +1,8 @@
+[![pypi](https://img.shields.io/pypi/v/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
+[![python-ver](https://img.shields.io/pypi/pyversions/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
+[![github-release](https://img.shields.io/github/v/release/trollfist20/youtube-search-requests?style=plastic&logo=appveyor)](https://github.com/trollfist20/youtube-search-requests/releases)
+
+
 # youtube-search-requests
 ### Search Youtube videos using python requests without Youtube API.
 ### youtube-search-requests can search unlimited videos !!!

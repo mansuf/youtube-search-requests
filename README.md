@@ -1,13 +1,6 @@
 # youtube-search-requests
 ### Search Youtube videos using python requests without Youtube API.
-~~youtube-search-requests can search up to 120+ videos !~~
-### youtube-search-requests v0.0.2 can search unlimited videos !!!
-
-~~Normally youtube-search-requests only extract urls, you can extract additional information by installing youtube-dl, for more information check usage below.~~.
-
-you don't need youtube-dl module anymore, 
-youtube-search-requests now extract info by itself.
-And provide a very fast search rather than old version (v0.0.1)
+### youtube-search-requests can search unlimited videos !!!
 
 CLI (Command Line Interface) Usage:
 ```

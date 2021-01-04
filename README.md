@@ -7,6 +7,8 @@
 ### Search Youtube videos using python requests without Youtube API.
 ### youtube-search-requests can search unlimited videos !!!
 
+**NOTE:** youtube-search-requests is still in development. But, it should be stable for now.
+
 CLI (Command Line Interface) Usage:
 ```
 

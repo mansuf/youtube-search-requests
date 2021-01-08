@@ -9,6 +9,11 @@
 
 **NOTE:** youtube-search-requests is still in development. But, it should be stable for now.
 
+## Installation
+```
+pip install youtube-search-requests
+```
+
 CLI (Command Line Interface) Usage:
 ```
 

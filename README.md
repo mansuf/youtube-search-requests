@@ -1,6 +1,7 @@
 [![pypi](https://img.shields.io/pypi/v/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
 [![python-ver](https://img.shields.io/pypi/pyversions/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
 [![github-release](https://img.shields.io/github/v/release/trollfist20/youtube-search-requests?style=plastic&logo=appveyor)](https://github.com/trollfist20/youtube-search-requests/releases)
+[![pypi-total-downloads](https://img.shields.io/pypi/dm/youtube-search-requests?label=DOWNLOADS&style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
 
 
 # youtube-search-requests
@@ -130,3 +131,5 @@ youtube-search-requests work like Youtube in browsers (playing with POST and GET
 - First, youtube-search-requests create a session for Youtube. (every opened youtube page in browser have it own session id)
 - Second, youtube-search-requests search videos using "Public Search Youtube API" that have been used youtube for searching videos in browsers.
 - There we go, done !!! :D.
+
+### A little note: This project may be called as "wrapper youtube public search API".

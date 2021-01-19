@@ -128,8 +128,7 @@ asyncio.run(search())
 youtube-search-requests work like Youtube in browsers (playing with POST and GET method).
 
 ### in-long-word:
-- First, youtube-search-requests create a session for Youtube. (every opened youtube page in browser have it own session id)
+- First, youtube-search-requests create a session for Youtube. (every opened youtube page in browser have it own session)
 - Second, youtube-search-requests search videos using "Public Search Youtube API" that have been used youtube for searching videos in browsers.
 - There we go, done !!! :D.
 
-### A little note: This project may be called as "wrapper youtube public search API".

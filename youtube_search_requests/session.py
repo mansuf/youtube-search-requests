@@ -58,7 +58,13 @@ class YoutubeSession(Session):
         self.data = data
         self.key = data['INNERTUBE_API_KEY']
         self.client = data['INNERTUBE_CONTEXT']
-        self.id = data['INNERTUBE_CONTEXT']['request']['sessionId']
+        try:
+            self.id = data['INNERTUBE_CONTEXT']['request']['sessionId']
+        except KeyError:
+            # if error occured when getting session id
+            # that mean, youtube doesn't give session id
+            # it not a big problem, so its okay.
+            self.id = None
 
     def new_session(self):
         while True:

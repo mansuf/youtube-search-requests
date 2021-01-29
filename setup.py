@@ -2,7 +2,7 @@ import pathlib
 from setuptools import setup
 import sys
 
-__VERSION__ = 'v0.0.25'
+__VERSION__ = 'v0.0.26'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -17,6 +17,12 @@ setup(
   long_description_content_type= 'text/markdown',
   author = 'Rahman Yusuf',              
   author_email = 'danipart4@gmail.com',
+  entry_points= {
+    'console_scripts': [
+      'youtube-search-requests=youtube_search_requests.__main__:main',
+      'ysr=youtube_search_requests.__main__:main'
+    ]
+  },
   url = 'https://github.com/trollfist20/youtube-search-requests',  
   download_url = 'https://github.com/trollfist20/youtube-search-requests/archive/%s.tar.gz' % (__VERSION__),
   keywords = ['youtube', 'youtube-search'], 

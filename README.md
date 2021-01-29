@@ -16,39 +16,18 @@ pip install youtube-search-requests
 ```
 
 CLI (Command Line Interface) Usage:
-```
+```bash
 
-usage: python3 -m youtube_search_requests [-h] [--max-results={Number}] [-t={Number}] [-v] [--json]
-                                          [--json-output={Filename}] [--include-related-videos]
-                                          [--safe-search]
-                                          Search terms
+ysr "fish" --json
 
-Search Youtube videos using python requests without Youtube API
+# or
 
-positional arguments:
-  Search terms          a string terms want to search (if include space, you
-                        must use double quotes "")
+youtube-search-requests "fish" --json
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --max-results={Number} 
-                        maximum search results
-  -t={Number} , --timeout={Number} 
-                        give number of times to execute search, if times runs
-                        out, search stopped & returning results
-  -v , --version        show youtube-search-requests version
-  --json                Return results in json format
-  --json-output={Filename} 
-                        Return results in output file based on json format
-  --include-related-videos 
-                        include all related videos each url's
-  --safe-search         This helps hide potentially mature videos.
-example usage:
-
+# do this if "ysr" and "youtube_search_requests" didn't work
 python3 -m youtube_search_requests "fish" --json
 
-# {"urls": {'title': ..., 'url': 'https://www.youtube.com/watch?v=0gT8Ty0ClHc', thumbnails: [...], ...}}
-
+# Output: {"urls": {'title': ..., 'url': 'https://www.youtube.com/watch?v=0gT8Ty0ClHc', thumbnails: [...], ...}}
 
 ```
 

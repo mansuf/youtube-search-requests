@@ -3,7 +3,6 @@ from youtube_search_requests import YoutubeSearch, YoutubeSession, AsyncYoutubeS
 import sys
 import asyncio
 from youtube_search_requests.constants import USER_AGENT_HEADERS
-
 # For short results
 BASE_TIMEOUT = 10
 MAXIMUM_RESULTS = 10
@@ -55,59 +54,9 @@ class TestYoutubeSearch(unittest.TestCase):
             youtube = YoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, youtube_session=session, include_related_videos=True, safe_search=True)
             youtube.search()
 
-# For python3.8 upper
+# checking if python3 support asyncio test case
 try:
     unittest.IsolatedAsyncioTestCase('test')
-    class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
-        async def test_with_given_time(self):
-            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, timeout=BASE_TIMEOUT)
-            data = await y.search()
-            await y.session.close()
-            self.assertEqual(len(data), 10)
-            self.assertIsInstance(data, list)
-        
-        async def test_normal(self):
-            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS)
-            data = await y.search()
-            await y.session.close()
-            self.assertIsInstance(data, list)
-
-        async def test_with_restricted_mode(self):
-            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, safe_search=True)
-            data = await y.search()
-            await y.session.close()
-            self.assertIsInstance(data, list)
-
-        async def test_with_included_related_videos(self):
-            y = AsyncYoutubeSearch('gordon ramsay', json_results=False, max_results=MAXIMUM_RESULTS, include_related_videos=True)
-            data = await y.search()
-            await y.session.close()
-            self.assertIsInstance(data, list)
-
-        async def test_all_user_agents(self):
-            for ua in USER_AGENT_HEADERS.keys():
-                session = AsyncYoutubeSession(ua)
-                await session.new_session()
-                youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session)
-                await youtube.search()
-                await youtube.session.close()
-
-        async def test_all_user_agents_with_related_videos(self):
-            for ua in USER_AGENT_HEADERS.keys():
-                session = AsyncYoutubeSession(ua)
-                await session.new_session()
-                youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session, include_related_videos=True)
-                await youtube.search()
-                await youtube.session.close()
-
-        async def test_all_user_agents_with_related_videos_and_restricted_mode(self):
-            for ua in USER_AGENT_HEADERS.keys():
-                session = AsyncYoutubeSession(ua)
-                await session.new_session()
-                youtube = AsyncYoutubeSearch('gordon ramsay', max_results=MAXIMUM_RESULTS, json_results=False, async_youtube_session=session, include_related_videos=True, safe_search=True)
-                await youtube.search()
-                await youtube.session.close()
-
 # For python 3.8 lower
 except AttributeError:
     class TestAsyncYoutubeSearch(unittest.TestCase):
@@ -185,7 +134,7 @@ except AttributeError:
                     await youtube.session.close()
             loop = asyncio.new_event_loop()
             loop.run_until_complete(worker())
-
+# For python3.8 upper
 except ValueError:
     class TestAsyncYoutubeSearch(unittest.IsolatedAsyncioTestCase):
         async def test_with_given_time(self):

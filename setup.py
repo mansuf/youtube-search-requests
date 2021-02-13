@@ -12,7 +12,7 @@ setup(
     'youtube_search_requests',
     'youtube_search_requests/utils',
     'youtube_search_requests/extractor',
-    'youtube_search_requests_parser'
+    'youtube_search_requests/parser'
   ],   
   version = __VERSION__,
   license='MIT',     

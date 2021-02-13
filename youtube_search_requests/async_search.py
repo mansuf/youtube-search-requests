@@ -5,14 +5,14 @@ import aiohttp
 import json
 import asyncio
 import threading
-from youtube_search_requests.async_session import AsyncYoutubeSession
-from youtube_search_requests.utils.errors import InvalidArgument
-from youtube_search_requests.constants import (
+from .async_session import AsyncYoutubeSession
+from .utils.errors import InvalidArgument
+from .constants import (
     BASE_YOUTUBE_SEARCH_INTERNAL_API_URL,
     ALL_VIDEOS_FILTERS
 )
 from concurrent.futures import Future
-from .extractor.async_extractors import (
+from .extractor import (
     VideoAsyncExtractor,
     PlaylistAsyncExtractor,
     VideoRelatedAsyncExtractor

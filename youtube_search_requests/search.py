@@ -3,13 +3,13 @@
 
 import threading
 import json
-from youtube_search_requests.utils.errors import InvalidArgument
-from youtube_search_requests.session import YoutubeSession
-from youtube_search_requests.constants import (
+from .utils.errors import InvalidArgument
+from .session import YoutubeSession
+from .constants import (
     BASE_YOUTUBE_SEARCH_INTERNAL_API_URL,
     ALL_VIDEOS_FILTERS
 )
-from youtube_search_requests.extractor import (
+from .extractor import (
     VideoExtractor,
     VideoRelatedExtractor,
     PlaylistExtractor

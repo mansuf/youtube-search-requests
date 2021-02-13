@@ -73,6 +73,7 @@ async def async_search(args):
                 )
         else:
             print(data)
+    await session.close()
 
 def search(args):
     y = YoutubeSearch(

@@ -122,10 +122,12 @@ search with async usage
 ```python
 
 import asyncio
-from youtube_search_requests import AsyncYoutubeSearch
+from youtube_search_requests import AsyncYoutubeSearch, AsyncYoutubeSession
 
 async def search():
-  y = AsyncYoutubeSearch()
+  session = AsyncYoutubeSession()
+  await session.new_session()
+  y = AsyncYoutubeSearch(async_youtube_session=session)
   results = await y.search_videos('fish', max_results=10)
   print(results)
 

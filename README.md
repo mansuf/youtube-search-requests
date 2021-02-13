@@ -31,6 +31,7 @@ python3 -m youtube_search_requests "fish" --json
 
 ### Usage
 
-- For version v0.1.0 Upper [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0 upper/Usage.md)
-- For version v0.1.0 Lower [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0 lower/Usage.md)
+- For version v0.1.0 Upper [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0%20upper/Usage.md)
+
+- For version v0.1.0 Lower [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0%20lower/Usage.md)
 

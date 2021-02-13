@@ -1,0 +1,7 @@
+.vscode
+__pycache__
+experiment.py
+youtube_search_requests/__pycache__
+youtube_search_requests/utils/__pycache__
+youtube_search_requests/parser/__pycache__
+youtube_search_requests/extractor/__pycache__

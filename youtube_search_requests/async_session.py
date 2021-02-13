@@ -1,14 +1,18 @@
 # youtube-search-requests
 # async_session.py
 
-import threading
 import aiohttp
 import random
 import asyncio
 import json
 import warnings
-from youtube_search_requests.constants import USER_AGENT_HEADERS
-from youtube_search_requests.utils import parse_json_async_session_data, YoutubePreferenceCookie
+from youtube_search_requests.constants import USER_AGENT_HEADERS, BASE_YOUTUBE_URL
+from youtube_search_requests.utils import (
+    parse_json_session_data,
+    # check_valid_regions, # TODO: add this to next release
+    check_valid_language,
+    check_valid_user_agent
+)
 from youtube_search_requests.utils.errors import InvalidArgument
 
 class AsyncYoutubeSession(aiohttp.ClientSession):
@@ -29,34 +33,65 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
     restricted_mode: :class:`bool` (optional, default: False)
         This helps hide potentially mature videos.
         No filter is 100% accurate.
+    language: :class:`str` (optional, default: 'en')
+        set the results language, see constants.py to see all valid languages
     """
-    def __init__(self, preferred_user_agent='BOT', loop: asyncio.AbstractEventLoop=None, restricted_mode: bool=False):
-        super().__init__(loop=loop or asyncio.get_event_loop())
-        self.BASE_URL = 'https://www.youtube.com/'
-        self.BASE_SEARCH_URL = 'https://www.youtube.com/youtubei/v1/search?key='
-        self.check_valid_user_agent(preferred_user_agent)
-        self.preferred_user_agent = preferred_user_agent
-        self.restricted_mode = restricted_mode
-        self._RESTRICTED_MODE_PREFERENCE = 'f2=8000000'
+    # TODO: add this to next release on class comment
+    # region: :class:`str` or :class:`NoneType` (optional: default: None)
+    # set the results region, see constants.py to see all valid regions
 
-    def check_valid_user_agent(self, user_agent: str):
-        try:
-            USER_AGENT_HEADERS[user_agent]
-        except KeyError:
-            raise InvalidArgument('invalid user-agent')
+    def __init__(
+        self,
+        preferred_user_agent='BOT',
+        loop: asyncio.AbstractEventLoop=None,
+        restricted_mode: bool=False,
+        language: str='en',
+    ):
+        super().__init__(loop=loop or asyncio.get_event_loop())
+        self.BASE_URL = BASE_YOUTUBE_URL
+        self.restricted_mode = restricted_mode
+
+        # Check valid user-agent
+        check_valid_user_agent(preferred_user_agent)
+        self.preferred_user_agent = preferred_user_agent
+
+
+        # TODO: add this to next release
+        # if region is not None:
+        #     check_valid_regions(region)
+        #     self._region = region
+        # else:
+        #     self._region = None
+        
+        # Check valid language
+        check_valid_language(language)
+        self._language = language
+
+        # Create new session
+        self.new_session()
 
     def get_user_agent(self, preferred_user_agent: str):
-        return random.choice(USER_AGENT_HEADERS[preferred_user_agent])
-
-    def _parse_preference_cookies(self):
-        c = YoutubePreferenceCookie()
-        if self.restricted_mode:
-            c.add_preference(self._RESTRICTED_MODE_PREFERENCE)
-        return c.get_cookie()
+        if preferred_user_agent == 'RANDOM':
+            return USER_AGENT_HEADERS[preferred_user_agent]()
+        else:
+            return random.choice(USER_AGENT_HEADERS[preferred_user_agent])
 
     # TODO: add external cookies support
     def _parse_cookies(self):
-        return self._parse_preference_cookies()
+        cookies = {}
+        if self.restricted_mode:
+            # set Restricted Mode
+            cookies['f2'] = '8000000'
+        # Set language
+        cookies['hl'] = self._language
+        return cookies
+
+    # TODO: add this to next release
+    # def _get_geolocation(self):
+    #     if self._region is None:
+    #         return ''
+    #     else:
+    #         return '?persist_gl=1&gl=' + self._region
 
     async def get_session_data(self, user_agent_header=None):
         """
@@ -67,9 +102,12 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
         if user_agent_header is None:
             r = await self.get(self.BASE_URL, cookies=self._parse_cookies())
         else:
-            r = await self.get(self.BASE_URL, headers={'User-Agent': user_agent_header}, cookies=self._parse_cookies())
-        data = await r.text()
-        return await parse_json_async_session_data(data)
+            r = await self.get(
+                self.BASE_URL,
+                headers={'User-Agent': user_agent_header},
+                cookies=self._parse_cookies()
+            )
+        return parse_json_session_data(r)
 
     def _parse_session_data(self, data):
         self.data = data
@@ -90,7 +128,7 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
         create a new session
         """
         while True:
-            super().__init__()
+            super().__init__(loop= self.loop)
             self.USER_AGENT = self.get_user_agent(self.preferred_user_agent)
             try:
                 data = await self.get_session_data(self.USER_AGENT)

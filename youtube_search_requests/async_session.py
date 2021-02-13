@@ -8,7 +8,7 @@ import json
 import warnings
 from youtube_search_requests.constants import USER_AGENT_HEADERS, BASE_YOUTUBE_URL
 from youtube_search_requests.utils import (
-    parse_json_session_data,
+    parse_json_async_session_data,
     # check_valid_regions, # TODO: add this to next release
     check_valid_language,
     check_valid_user_agent
@@ -67,9 +67,6 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
         check_valid_language(language)
         self._language = language
 
-        # Create new session
-        self.new_session()
-
     def get_user_agent(self, preferred_user_agent: str):
         if preferred_user_agent == 'RANDOM':
             return USER_AGENT_HEADERS[preferred_user_agent]()
@@ -107,12 +104,13 @@ class AsyncYoutubeSession(aiohttp.ClientSession):
                 headers={'User-Agent': user_agent_header},
                 cookies=self._parse_cookies()
             )
-        return parse_json_session_data(r)
+        return await parse_json_async_session_data(r)
 
     def _parse_session_data(self, data):
         self.data = data
         self.key = data['INNERTUBE_API_KEY']
-        self.client = data['INNERTUBE_CONTEXT']
+        self.context = data['INNERTUBE_CONTEXT']
+        self.client = data['INNERTUBE_CONTEXT']['client']
         try:
             self.id = data['INNERTUBE_CONTEXT']['request']['sessionId']
         except KeyError:

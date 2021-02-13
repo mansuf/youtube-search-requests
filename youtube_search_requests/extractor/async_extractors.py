@@ -39,7 +39,7 @@ class BaseAsyncExtractor:
             json_data['params'] = filter_value
         if continuation is not None:
             json_data['continuation'] = continuation
-        r = self.session.post(
+        r = await self.session.post(
             self.BASE_URL + self.session.key,
             json=json_data,
             headers={

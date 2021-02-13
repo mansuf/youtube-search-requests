@@ -13,6 +13,12 @@ def parse_json_session_data(r):
     d = r.text[r.text.find('ytcfg.set({') + 10:]
     return json.loads(d[0:d.find(');')])
 
+async def parse_json_async_session_data(r):
+    data = await r.text()
+    d = data[data.find('ytcfg.set({') + 10:]
+    return json.loads(d[0:d.find(');')])
+
+
 # TODO: add this to next release
 # def check_valid_regions(region):
 #     if region in VALID_REGIONS:

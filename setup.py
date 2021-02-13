@@ -2,14 +2,18 @@ import pathlib
 from setuptools import setup
 import sys
 
-__VERSION__ = 'v0.1.01'
+__VERSION__ = 'v0.1.11'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
-
 setup(
   name = 'youtube-search-requests',         
-  packages = ['youtube_search_requests', 'youtube_search_requests/utils'],   
+  packages = [
+    'youtube_search_requests',
+    'youtube_search_requests/utils',
+    'youtube_search_requests/extractor',
+    'youtube_search_requests_parser'
+  ],   
   version = __VERSION__,
   license='MIT',     
   description = 'Search Youtube videos using python requests without Youtube API',

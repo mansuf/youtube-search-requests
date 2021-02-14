@@ -69,7 +69,6 @@ class VideoExtractor(BaseExtractor):
 
     def extract(self, legit_urls: list, event_shutdown: threading.Event):
         r = self.request_search(self.search_query, self.FILTER)
-        open('vid_extractor_error.json', 'w').write(json.dumps(r))
         while True:
             # Force shutdown if True
             if event_shutdown.is_set():
@@ -86,13 +85,6 @@ class VideoExtractor(BaseExtractor):
                 continue
             for i in videos:
                 related_vids = []
-                # print({
-                #     'url': i['url'],
-                #     'filter': self.FILTER,
-                #     'ua': self.session.USER_AGENT,
-                #     'lang': self.session._language,
-                #     'total_vids': len(legit_urls)
-                # })
                 if i in legit_urls:
                     continue
                 if self.include_related_videos:
@@ -207,7 +199,6 @@ class VideoRelatedExtractor(BaseExtractor):
     def _extract_from_scrapping(self):
         unparsed_data = self.session.get(self.url).text
         parsed_data = self._wrap_dict_related_videos(unparsed_data)
-        open('scrap_rel_vid_extractor_errors.json', 'w').write(json.dumps(parsed_data))
         return [
             get_related_videos(parsed_data, self.use_short_link),
             get_continuation_token(parsed_data)
@@ -240,7 +231,6 @@ class VideoRelatedExtractor(BaseExtractor):
                 break
         # extract from internal API using continuation token 
         r = self.request_search(continuation=token)
-        open('rel_vid_extractor_errors.json', 'w').write(json.dumps(r))
         while True:
             # Force shutdown if True
             if event_shutdown.is_set():

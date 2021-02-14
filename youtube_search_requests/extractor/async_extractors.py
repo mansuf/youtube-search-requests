@@ -203,7 +203,6 @@ class VideoRelatedAsyncExtractor(BaseAsyncExtractor):
     async def _extract_from_scrapping(self):
         unparsed_data = await self.session.get(self.url).text()
         parsed_data = self._wrap_dict_related_videos(unparsed_data)
-        open('scrap_rel_vid_extractor_errors.json', 'w').write(json.dumps(parsed_data))
         return [
             get_related_videos(parsed_data, self.use_short_link),
             get_continuation_token(parsed_data)
@@ -236,7 +235,6 @@ class VideoRelatedAsyncExtractor(BaseAsyncExtractor):
                 break
         # extract from internal API using continuation token 
         r = await self.request_search(continuation=token)
-        open('rel_vid_extractor_errors.json', 'w').write(json.dumps(r))
         while True:
             # Force shutdown if True
             if event_shutdown.is_set():

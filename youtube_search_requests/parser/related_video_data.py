@@ -14,7 +14,6 @@ def parse_related_video_data1(data):
             continue
         except TypeError:
             continue
-        print(type(c))
         for v in c:
             try:
                 v['compactVideoRenderer']

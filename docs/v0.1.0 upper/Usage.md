@@ -127,6 +127,8 @@ from youtube_search_requests import AsyncYoutubeSearch, AsyncYoutubeSession
 async def search():
   session = AsyncYoutubeSession()
   await session.new_session()
+  # AsyncYoutubeSearch require AsyncYoutubeSession
+  # in order to work !!
   y = AsyncYoutubeSearch(async_youtube_session=session)
   results = await y.search_videos('fish', max_results=10)
   print(results)

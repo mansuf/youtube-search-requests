@@ -10,7 +10,8 @@ from youtube_search_requests.utils import (
     parse_json_session_data,
     # check_valid_regions, # TODO: add this to next release
     check_valid_language,
-    check_valid_user_agent
+    check_valid_user_agent,
+    YoutubePreferenceCookies
 )
 from youtube_search_requests.utils.errors import InvalidArgument
 
@@ -70,12 +71,12 @@ class YoutubeSession(Session):
 
     # TODO: add external cookies support
     def _parse_cookies(self):
-        cookies = {}
+        cookies = YoutubePreferenceCookies()
         if self.restricted_mode:
             # set Restricted Mode
-            cookies['f2'] = '8000000'
+            cookies.add_preference('f2', '8000000')
         # Set language
-        cookies['hl'] = self._language
+        cookies.add_preference('hl', self._language)
         return cookies
 
     # TODO: add this to next release

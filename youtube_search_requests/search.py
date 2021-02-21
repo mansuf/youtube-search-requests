@@ -3,6 +3,7 @@
 
 import threading
 import json
+from .utils import YoutubeCookies
 from .utils.errors import InvalidArgument
 from .session import YoutubeSession
 from .constants import (
@@ -22,7 +23,7 @@ class YoutubeSearch:
 
     json_results: :class:`bool` (optional, default: False)
         if True, Return results in json format. If False return results in dict format
-    youtube_session: :class:`YoutubeSession` (optional, default: None)
+    session: :class:`YoutubeSession` (optional, default: None)
         a session for youtube.
         NOTE: YoutubeSearch require YoutubeSession in order to work !
     safe_search: :class:`bool` (optional, default: False)
@@ -34,16 +35,16 @@ class YoutubeSearch:
     def __init__(
         self,
         json_results: bool=False,
-        youtube_session: YoutubeSession=None,
+        session: YoutubeSession=None,
         safe_search: bool=False,
         language: str='en'
     ):
         # Validate the arguments
         if not isinstance(json_results, bool):
             raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
-        if youtube_session is not None:
-            if not isinstance(youtube_session, YoutubeSession):
-                raise InvalidArgument('youtube_session expecting YoutubeSession, got %s' % (youtube_session.__class__.__name__))
+        if session is not None:
+            if not isinstance(session, YoutubeSession):
+                raise InvalidArgument('session expecting YoutubeSession, got %s' % (session.__class__.__name__))
         if not isinstance(safe_search, bool):
             raise InvalidArgument('safe_search expecting bool, got %s' % (safe_search.__class__.__name__))
         if not isinstance(language, str):
@@ -51,11 +52,16 @@ class YoutubeSearch:
 
         self.BASE_SEARCH_URL = BASE_YOUTUBE_SEARCH_INTERNAL_API_URL
         self.json_results = json_results
-        self.session = youtube_session or YoutubeSession(
-            preferred_user_agent='BOT',
-            restricted_mode=safe_search,
-            language=language,
-        )
+
+        # Parse Cookies
+        cookies = YoutubeCookies()
+        if safe_search:
+            cookies.set_restricted_mode()
+        cookies.set_language(language)
+
+        # Parse Session
+        _session = YoutubeSession(preferred_user_agent='BOT', cookies=cookies)
+        self.session = session or _session
 
     def _wrap_json(self, urls: list):
         if self.json_results:
@@ -65,9 +71,10 @@ class YoutubeSearch:
 
     def toggle_safe_search(self, safe_mode=True):
         """toggle safe search and create new session"""
-        if self.session.restricted_mode == safe_mode:
-            return
-        self.session.restricted_mode = safe_mode
+        if safe_mode:
+            self.session._cookies.unset_restricted_mode()
+        else:
+            self.session._cookies.set_restricted_mode()
         self.session.new_session()
 
     def _search(

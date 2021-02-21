@@ -9,12 +9,15 @@ from .constants import (
     PARSER_VIDEO_DATA_METHODS,
     PARSER_RELATED_VIDEO_DATA_METHODS,
     VIDEO_RENDERER_DATA_TYPES,
-    PLAYLIST_RENDERER_DATA_TYPES
+    PLAYLIST_RENDERER_DATA_TYPES,
+    CHANNEL_RENDERER_DATA_TYPES
 )
 from .video_data import (
     get_video_info,
+    get_thumbnails,
     parse_url_video,
-    parse_watch_url_playlist
+    parse_watch_url_playlist,
+    parse_url_channel,
 )
 
 # Getting continuation token
@@ -49,7 +52,7 @@ def get_video_data(data, use_short_link=False):
             videos.append({
                 'title': get_video_info(v, 'title'),
                 'url': parse_url_video(v['videoId'], use_short_link),
-                'thumbnails': v['thumbnail']['thumbnails'],
+                'thumbnails': get_thumbnails(v),
                 'uploader': get_video_info(v, 'longBylineText'),
                 'publishedSince': get_video_info(v, 'publishedTimeText'),
                 'views': get_video_info(v, 'viewCountText'),
@@ -75,23 +78,23 @@ def get_playlists_data(data, use_short_link=False):
     ps = _get_playlists_data(data)
     if ps is None:
         return None
-    v = None
+    p = None
     for info in ps:
         for i in PLAYLIST_RENDERER_DATA_TYPES:
             try:
-                v = info[i]
+                p = info[i]
             except KeyError:
                 continue
-        if v is None:
+        if p is None:
             continue
         try:
             playlists.append({
-                'title': get_video_info(v, 'title'),
-                'playlist_url': BASE_YOUTUBE_PLAYLIST_URL + v['playlistId'],
-                'watch_url': parse_watch_url_playlist(v['playlistId'], v, use_short_link),
-                'thumbnails': get_playlists_thumbnails(v),
-                'uploader': get_video_info(v, 'shortBylineText'),
-                'totalVideos': v['videoCount']
+                'title': get_video_info(p, 'title'),
+                'playlist_url': BASE_YOUTUBE_PLAYLIST_URL + p['playlistId'],
+                'watch_url': parse_watch_url_playlist(p['playlistId'], p, use_short_link),
+                'thumbnails': get_playlists_thumbnails(p),
+                'uploader': get_video_info(p, 'shortBylineText'),
+                'totalVideos': p['videoCount']
             })
         except KeyError:
             continue
@@ -122,7 +125,7 @@ def get_related_videos(data, use_short_link=False):
             videos.append({
                 'title': get_video_info(v, 'title'),
                 'url': parse_url_video(v['videoId'], use_short_link),
-                'thumbnails': v['thumbnail']['thumbnails'],
+                'thumbnails': get_thumbnails(v),
                 'uploader': get_video_info(v, 'longBylineText'),
                 'publishedSince': get_video_info(v, 'publishedTimeText'),
                 'views': get_video_info(v, 'viewCountText'),
@@ -131,3 +134,47 @@ def get_related_videos(data, use_short_link=False):
         except KeyError:
             continue
     return videos
+
+def _get_channels_data(data):
+    for method in PARSER_VIDEO_DATA_METHODS:
+        result = method(data)
+        if result is not None:
+            return result
+
+def _get_subscriber_count(data):
+    try:
+        return get_video_info(data, 'subscriberCountText')
+    except KeyError:
+        return None
+
+def _get_video_count(data):
+    try:
+        return get_video_info(data, 'videoCountText')
+    except KeyError:
+        return None
+
+def get_channels_data(data):
+    channels = []
+    cs = _get_playlists_data(data)
+    if cs is None:
+        return None
+    c = None
+    for info in cs:
+        for i in CHANNEL_RENDERER_DATA_TYPES:
+            try:
+                c = info[i]
+            except KeyError:
+                continue
+        if c is None:
+            continue
+        try:
+            channels.append({
+                'name_channel': get_video_info(c, 'title'),
+                'url': parse_url_channel(c['channelId']),
+                'thumbnail': get_thumbnails(c),
+                'subscriber': _get_subscriber_count(c),
+                'totalVideosUploaded': _get_video_count(c)
+            })
+        except KeyError:
+            continue
+    return channels

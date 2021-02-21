@@ -45,3 +45,10 @@ PLAYLIST_RENDERER_DATA_TYPES = [
     'compactPlaylistRenderer',
     'playlistRenderer'
 ]
+
+# list of channel types
+# (mobile or desktop)
+CHANNEL_RENDERER_DATA_TYPES = [
+    'compactChannelRenderer',
+    'channelRenderer'
+]

@@ -16,7 +16,8 @@ from youtube_search_requests.parser import (
     get_continuation_token,
     get_video_data,
     get_playlists_data,
-    get_related_videos
+    get_related_videos,
+    get_channels_data
 )
 import urllib.parse
 
@@ -153,6 +154,45 @@ class PlaylistAsyncExtractor(BaseAsyncExtractor):
                 r = await self.request_search(self.search_query, self.FILTER, continuation=continuation)
                 continue
 
+class ChannelAsyncExtractor(BaseAsyncExtractor):
+    def __init__(
+        self,
+        session: AsyncYoutubeSession,
+        search_terms: str,
+        max_results: int=10
+    ):
+        super().__init__(BASE_YOUTUBE_SEARCH_INTERNAL_API_URL, session)
+        self.search_query = search_terms
+        self.max_results = max_results
+        self.FILTER = ALL_FILTERS['CHANNELS_FILTER']
+
+    async def extract(self, legit_urls: list, event_shutdown: threading.Event):
+        r = await self.request_search(self.search_query, self.FILTER)
+        while True:
+            # Force shutdown if True
+            if event_shutdown.is_set():
+                return legit_urls
+            continuation = get_continuation_token(r)
+            if continuation is None:
+                await self.session.new_session()
+                r = await self.request_search(self.search_query, self.FILTER)
+                continue
+            channels = get_channels_data(r)
+            if channels is None:
+                await self.session.new_session()
+                r = await self.request_search(self.search_query, self.FILTER)
+                continue
+            for i in channels:
+                if i in legit_urls:
+                    continue
+                legit_urls.append(i)
+                if len(legit_urls) > self.max_results or len(legit_urls) == self.max_results:
+                    event_shutdown.set()
+                    return legit_urls
+            else:
+                r = await self.request_search(self.search_query, self.FILTER, continuation=continuation)
+                continue
+
 class VideoRelatedAsyncExtractor(BaseAsyncExtractor):
     """Search youtube related videos based on youtube watch url"""
     def __init__(
@@ -201,7 +241,8 @@ class VideoRelatedAsyncExtractor(BaseAsyncExtractor):
             return json.loads(compiled_text.co_consts[0])
 
     async def _extract_from_scrapping(self):
-        unparsed_data = await self.session.get(self.url).text()
+        data = await self.session.get(self.url)
+        unparsed_data = await data.text()
         parsed_data = self._wrap_dict_related_videos(unparsed_data)
         return [
             get_related_videos(parsed_data, self.use_short_link),

@@ -4,7 +4,8 @@
 from youtube_search_requests.constants import (
     BASE_YOUTUBE_SHORT_URL,
     BASE_YOUTUBE_WATCH_URL,
-    BASE_YOUTUBE_PLAYLIST_URL
+    BASE_YOUTUBE_PLAYLIST_URL,
+    BASE_YOUTUBE_CHANNEL_URL
 )
 
 # shorcut function for getting video info data
@@ -91,3 +92,13 @@ def parse_watch_url_playlist(playlist_id, data, use_short_link=False):
         return BASE_YOUTUBE_SHORT_URL + videoId + '?list=' + playlist_id
     else:
         return BASE_YOUTUBE_WATCH_URL + videoId + '?list=' + playlist_id
+
+def parse_url_channel(channel_id):
+    return BASE_YOUTUBE_CHANNEL_URL + channel_id
+
+def get_thumbnails(data):
+    thumbnails = data['thumbnail']['thumbnails']
+    for thumbnail in thumbnails:
+        if 'https:' not in thumbnail['url']:
+            thumbnail['url'] = 'https:' + thumbnail['url']
+    return thumbnails

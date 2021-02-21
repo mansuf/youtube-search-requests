@@ -16,7 +16,8 @@ from youtube_search_requests.parser import (
     get_continuation_token,
     get_video_data,
     get_playlists_data,
-    get_related_videos
+    get_related_videos,
+    get_channels_data
 )
 import urllib.parse
 
@@ -139,6 +140,45 @@ class PlaylistExtractor(BaseExtractor):
                 r = self.request_search(self.search_query, self.FILTER)
                 continue
             for i in playlists:
+                if i in legit_urls:
+                    continue
+                legit_urls.append(i)
+                if len(legit_urls) > self.max_results or len(legit_urls) == self.max_results:
+                    event_shutdown.set()
+                    return legit_urls
+            else:
+                r = self.request_search(self.search_query, self.FILTER, continuation=continuation)
+                continue
+
+class ChannelExtractor(BaseExtractor):
+    def __init__(
+        self,
+        session: YoutubeSession,
+        search_terms: str,
+        max_results: int=10
+    ):
+        super().__init__(BASE_YOUTUBE_SEARCH_INTERNAL_API_URL, session)
+        self.search_query = search_terms
+        self.max_results = max_results
+        self.FILTER = ALL_FILTERS['CHANNELS_FILTER']
+
+    def extract(self, legit_urls: list, event_shutdown: threading.Event):
+        r = self.request_search(self.search_query, self.FILTER)
+        while True:
+            # Force shutdown if True
+            if event_shutdown.is_set():
+                return legit_urls
+            continuation = get_continuation_token(r)
+            if continuation is None:
+                self.session.new_session()
+                r = self.request_search(self.search_query, self.FILTER)
+                continue
+            channels = get_channels_data(r)
+            if channels is None:
+                self.session.new_session()
+                r = self.request_search(self.search_query, self.FILTER)
+                continue
+            for i in channels:
                 if i in legit_urls:
                     continue
                 legit_urls.append(i)

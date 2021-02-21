@@ -25,7 +25,7 @@ class AsyncYoutubeSearch:
 
     AsyncYoutubeSearch arguments
 
-    async_youtube_session: :class:`AsyncYoutubeSession` (REQUIRED)
+    session: :class:`AsyncYoutubeSession` (REQUIRED)
         a session for youtube.
         NOTE: AsyncYoutubeSearch require AsyncYoutubeSession in order to work !
     json_results: :class:`bool` (optional, default: False)
@@ -33,18 +33,18 @@ class AsyncYoutubeSearch:
     """
     def __init__(
         self,
-        async_youtube_session: AsyncYoutubeSession,
+        session: AsyncYoutubeSession,
         json_results: bool=False,
     ):
         # Validate the arguments
         if not isinstance(json_results, bool):
             raise InvalidArgument('json_results expecting bool, got %s' % (json_results.__class__.__name__))
-        if not isinstance(async_youtube_session, AsyncYoutubeSession):
-            raise InvalidArgument('async_youtube_session expecting AsyncYoutubeSession, got %s' % (async_youtube_session.__class__.__name__))
+        if not isinstance(session, AsyncYoutubeSession):
+            raise InvalidArgument('session expecting AsyncYoutubeSession, got %s' % (session.__class__.__name__))
 
         self.BASE_SEARCH_URL = BASE_YOUTUBE_SEARCH_INTERNAL_API_URL
         self.json_results = json_results
-        self.session = async_youtube_session
+        self.session = session
 
     def _wrap_json(self, urls: list):
         if self.json_results:
@@ -52,12 +52,17 @@ class AsyncYoutubeSearch:
         else:
             return urls
 
-    def toggle_safe_search(self, safe_mode=True):
-        """toggle safe search and create new session"""
-        if self.session.restricted_mode == safe_mode:
-            return
-        self.session.restricted_mode = safe_mode
-        self.session.new_session()
+    async def toggle_safe_search(self, safe_mode=True):
+        """
+        **Coroutine/Async Function**
+
+        toggle safe search and create new session
+        """
+        if safe_mode:
+            self.session._cookies.unset_restricted_mode()
+        else:
+            self.session._cookies.set_restricted_mode()
+        await self.session.new_session()
 
     async def _search(
         self,

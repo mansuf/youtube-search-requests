@@ -11,7 +11,7 @@ from youtube_search_requests.utils import (
     # check_valid_regions, # TODO: add this to next release
     check_valid_language,
     check_valid_user_agent,
-    YoutubePreferenceCookies
+    YoutubeCookies
 )
 from youtube_search_requests.utils.errors import InvalidArgument
 
@@ -22,11 +22,14 @@ class YoutubeSession(Session):
     preferred_user_agent: :class:`str` (optional, default: 'BOT')
         a User-Agent header to pass in session, 
         see constants.py to see all supported user-agents.
-    restricted_mode: :class:`bool` (optional, default: False)
-        This helps hide potentially mature videos.
-        No filter is 100% accurate.
-    language: :class:`str` (optional, default: 'en')
-        set the results language, see constants.py to see all valid languages
+    cookies: :class:`youtube_search_requests.utils.YoutubeCookies` (optional, default: None) 
+        a Youtube cookies.
+        You can set language and restricted mode
+        and put additional cookies in YoutubeCookies.
+    no_auto_create_session: :class:`bool` (optional, default: None)
+        Normally, YoutubeSession automatically create session when you called __init__()
+        or initiated class.
+        if this True, YoutubeSession WONT automatically create new session.
     """
     # TODO: add this to next release on class comment
     # region: :class:`str` or :class:`NoneType` (optional: default: None)
@@ -35,18 +38,20 @@ class YoutubeSession(Session):
     def __init__(
         self,
         preferred_user_agent: str='BOT',
-        restricted_mode: bool=False,
-        language: str='en',
+        cookies: YoutubeCookies=None,
         no_auto_create_session=False
     ):
         super().__init__()
         self.BASE_URL = BASE_YOUTUBE_URL
-        self.restricted_mode = restricted_mode
 
         # Check valid user-agent
         check_valid_user_agent(preferred_user_agent)
         self.preferred_user_agent = preferred_user_agent
 
+        # set cookies
+        _cookies = YoutubeCookies()
+        _cookies.set_language('en')
+        self._cookies = cookies or _cookies
 
         # TODO: add this to next release
         # if region is not None:
@@ -54,10 +59,6 @@ class YoutubeSession(Session):
         #     self._region = region
         # else:
         #     self._region = None
-        
-        # Check valid language
-        check_valid_language(language)
-        self._language = language
 
         if not no_auto_create_session:
             # Create new session
@@ -69,16 +70,6 @@ class YoutubeSession(Session):
         else:
             return random.choice(USER_AGENT_HEADERS[preferred_user_agent])
 
-    # TODO: add external cookies support
-    def _parse_cookies(self):
-        cookies = YoutubePreferenceCookies()
-        if self.restricted_mode:
-            # set Restricted Mode
-            cookies.add_preference('f2', '8000000')
-        # Set language
-        cookies.add_preference('hl', self._language)
-        return cookies
-
     # TODO: add this to next release
     # def _get_geolocation(self):
     #     if self._region is None:
@@ -89,12 +80,12 @@ class YoutubeSession(Session):
     def get_session_data(self, user_agent_header=None):
         """get session data"""
         if user_agent_header is None:
-            r = self.get(self.BASE_URL, cookies=self._parse_cookies())
+            r = self.get(self.BASE_URL, cookies=self._cookies.get_cookies())
         else:
             r = self.get(
                 self.BASE_URL,
                 headers={'User-Agent': user_agent_header},
-                cookies=self._parse_cookies()
+                cookies=self._cookies.get_cookies()
             )
         return parse_json_session_data(r)
 

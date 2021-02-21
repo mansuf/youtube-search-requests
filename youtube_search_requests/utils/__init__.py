@@ -10,6 +10,9 @@ from youtube_search_requests.constants import (
 from youtube_search_requests.utils.errors import InvalidArgument
 
 class YoutubeCookies:
+    """
+    a class representing Youtube cookies
+    """
     def __init__(self):
         self.cookies = {'PREF': {}}
 
@@ -25,6 +28,11 @@ class YoutubeCookies:
             return indexes[0], indexes[1]
 
     def set_restricted_mode(self):
+        """
+        Enable Restricted Mode.
+        This helps hide potentially mature videos.
+        No filter is 100% accurate.
+        """
         try:
             self.cookies['PREF']['f2']
         except KeyError:
@@ -33,18 +41,25 @@ class YoutubeCookies:
             pass
 
     def unset_restricted_mode(self):
+        """Disable Restricted Mode."""
         try:
             del self.cookies['PREF']['f2']
         except KeyError:
             pass
 
     def set_language(self, lang='en'):
+        """
+        set the results language, 
+        see constants.py to see all valid languages
+        """
         try:
             self.cookies['PREF']['hl']
         except KeyError:
+            check_valid_language(lang)
             self.add_preference('hl', lang)
         else:
             if self.cookies['PREF']['hl'] != lang:
+                check_valid_language(lang)
                 del self.cookies['PREF']['hl']
                 self.add_preference('hl', lang)
 
@@ -66,6 +81,7 @@ class YoutubeCookies:
         del self.cookies[name]
 
     def get_cookies(self):
+        """get all cookies"""
         PREF = self.cookies['PREF']
         a = ''
         cookies = {}

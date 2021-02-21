@@ -9,9 +9,9 @@ from youtube_search_requests.constants import (
 )
 from youtube_search_requests.utils.errors import InvalidArgument
 
-class YoutubePreferenceCookies:
+class YoutubeCookies:
     def __init__(self):
-        self.cookie = {'PREF': {}}
+        self.cookies = {'PREF': {}}
 
     def _parse_preference(self, p: str):
         if '&' in p:
@@ -24,29 +24,63 @@ class YoutubePreferenceCookies:
             indexes = p.split('=')
             return indexes[0], indexes[1]
 
+    def set_restricted_mode(self):
+        try:
+            self.cookies['PREF']['f2']
+        except KeyError:
+            self.add_preference('f2', '8000000')
+        else:
+            pass
+
+    def unset_restricted_mode(self):
+        try:
+            del self.cookies['PREF']['f2']
+        except KeyError:
+            pass
+
+    def set_language(self, lang='en'):
+        try:
+            self.cookies['PREF']['hl']
+        except KeyError:
+            self.add_preference('hl', lang)
+        else:
+            if self.cookies['PREF']['hl'] != lang:
+                del self.cookies['PREF']['hl']
+                self.add_preference('hl', lang)
+
     def add_preference(self, name: str, value: str):
-        self.cookie['PREF'][name] = value
+        self.cookies['PREF'][name] = value
 
     def add_preferences(self, preference: str):
         PREF = self._parse_preference(preference)
         if isinstance(PREF, dict):
             for key in PREF.keys():
-                self.cookie['PREF'][key] = PREF[key]
+                self.cookies['PREF'][key] = PREF[key]
         else:
-            self.cookie['PREF'][PREF[0]] = PREF[1]
+            self.cookies['PREF'][PREF[0]] = PREF[1]
 
-    def get_cookie(self):
-        PREF = self.cookie['PREF']
+    def add_cookie(self, name: str, value: str):
+        self.cookies[name] = value
+
+    def remove_cookie(self, name: str):
+        del self.cookies[name]
+
+    def get_cookies(self):
+        PREF = self.cookies['PREF']
         a = ''
+        cookies = {}
+        for key in self.cookies:
+            cookies[key] = self.cookies[key]
         if len(PREF.keys()) == 1:
             for key in PREF.keys():
                 a += key + '=' + PREF[key]
         elif len(PREF.keys()) == 0:
-            return {}
+            return cookies
         else:
             for key in PREF.keys():
                 a += key + '=' + PREF[key] + '&'
-        return {'PREF': a}
+        cookies['PREF'] = a
+        return cookies
 
 def parse_json_session_data(r):
     d = r.text[r.text.find('ytcfg.set({') + 10:]

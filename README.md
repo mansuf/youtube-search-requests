@@ -1,37 +1,104 @@
-[![pypi](https://img.shields.io/pypi/v/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
-[![python-ver](https://img.shields.io/pypi/pyversions/youtube-search-requests?style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
-[![github-release](https://img.shields.io/github/v/release/trollfist20/youtube-search-requests?style=plastic&logo=appveyor)](https://github.com/trollfist20/youtube-search-requests/releases)
-[![pypi-total-downloads](https://img.shields.io/pypi/dm/youtube-search-requests?label=DOWNLOADS&style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
+[![pypi-total-downloads](https://img.shields.io/pypi/dm/discord-ext-music?label=DOWNLOADS&style=for-the-badge)](https://pypi.org/project/discord-ext-music)
+[![python-ver](https://img.shields.io/pypi/pyversions/discord-ext-music?style=for-the-badge)](https://pypi.org/project/discord-ext-music)
+[![pypi-release-ver](https://img.shields.io/pypi/v/discord-ext-music?style=for-the-badge)](https://pypi.org/project/discord-ext-music)
 
+# discord-ext-music
 
-# youtube-search-requests
-### Search Youtube videos using python requests without Youtube API.
-### youtube-search-requests can search unlimited videos !!!
+An easy-to-use music extension for [discord.py](https://github.com/Rapptz/discord.py)
+
+## Features
+
+- It's easy to use and can be used for complex process.
+- Complete playback controls and thread-safe.
+- Built-in equalizer and volume adjuster.
+- The audio source can be used in [discord.py](https://github.com/Rapptz/discord.py) audio library.
 
 ## Installation
-```
-pip install youtube-search-requests
-```
 
-### CLI (Command Line Interface) Usage:
+**Python 3.8 or higher required.**
+
+### Stable version
+
+You can install `discord-ext-music` stable version directly from PyPI by the following command:
+
 ```bash
-
-ysr "fish" --json
-
-# or
-
-youtube-search-requests "fish" --json
-
-# do this if "ysr" and "youtube_search_requests" didn't work
-python3 -m youtube_search_requests "fish" --json
-
-# Output: {"urls": {'title': ..., 'url': 'https://www.youtube.com/watch?v=0gT8Ty0ClHc', thumbnails: [...], ...}}
-
+pip install discord-ext-music
 ```
 
-### Usage
+or by the cloning repository with latest stable version:
 
-- For version v0.1.0 Upper [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0%20upper/Usage.md)
+```bash
+git clone --branch v0.3.0 https://github.com/mansuf/discord-ext-music.git
+cd discord-ext-music
+```
 
-- For version v0.1.0 Lower [click here](https://github.com/mansuf/youtube-search-requests/blob/main/docs/v0.1.0%20lower/Usage.md)
+### Development version
 
+You also can install development version by cloning the repository, see below:
+
+```bash
+git clone https://github.com/mansuf/discord-ext-music.git
+cd discord-ext-music
+```
+
+### Optional packages
+
+These are optional packages that you are not required to install it, but you get extra benefit
+once you install it.
+
+- [scipy](https://github.com/scipy/scipy) and [pydub](https://github.com/jiaaro/pydub)
+    for equalizer support.
+- [miniaudio](https://github.com/irmen/pyminiaudio)
+    for miniaudio music source support.
+- [PyAV](https://github.com/PyAV-Org/PyAV)
+    for FFmpeg libraries music source support.
+
+## What type of audio formats `discord-ext-music` can play ?
+
+basically, you can play these formats without additional packages:
+- Raw PCM
+- WAV
+
+with [miniaudio](https://github.com/irmen/pyminiaudio) you can play these formats:
+- MP3
+- FLAC
+- **All formats that vorbis encoded**
+- WAV
+
+with [PyAV](https://github.com/PyAV-Org/PyAV) you can almost play anything that supported by [ffmpeg](http://ffmpeg.org/) libraries
+
+## What sources that `discord-ext-music` can play ?
+
+Without additional packages or with [miniaudio](https://github.com/irmen/pyminiaudio) you can only play **local file**.
+
+But, with [PyAV](https://github.com/PyAV-Org/PyAV) you can almost play any sources that supported by [ffmpeg protocols](https://ffmpeg.org/ffmpeg-protocols.html)
+
+## Quick usage
+
+```python
+from discord.ext.commands import Bot
+from discord.ext.music import MusicClient, WAVAudio, Track
+
+bot = Bot()
+
+@bot.command()
+async def play(ctx):
+    voice_user = ctx.message.author.voice
+    music_client = await voice_user.channel.connect(cls=MusicClient)
+    track = Track(
+        WAVAudio('audio.wav'), # AudioSource
+        'This is audio' # name
+    )
+    await music_client.play(track)
+
+bot.run('token')
+```
+
+## Links
+
+- [Documentation](http://discord-ext-music.rtfd.io/)
+- [PyPI](https://pypi.org/project/discord-ext-music)
+
+## Example
+
+Bot example are available in [here](https://github.com/mansuf/bot-music-discordpy)

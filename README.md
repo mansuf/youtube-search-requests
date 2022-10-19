@@ -3,6 +3,9 @@
 [![github-release](https://img.shields.io/github/v/release/trollfist20/youtube-search-requests?style=plastic&logo=appveyor)](https://github.com/trollfist20/youtube-search-requests/releases)
 [![pypi-total-downloads](https://img.shields.io/pypi/dm/youtube-search-requests?label=DOWNLOADS&style=plastic&logo=appveyor)](https://pypi.org/project/youtube-search-requests)
 
+# Note: Abandoned project
+
+This repository no longer receives updates (bug fixes or new features). If you still wanna maintain it, please fork this repository. Thank you.
 
 # youtube-search-requests
 ### Search Youtube videos using python requests without Youtube API.
